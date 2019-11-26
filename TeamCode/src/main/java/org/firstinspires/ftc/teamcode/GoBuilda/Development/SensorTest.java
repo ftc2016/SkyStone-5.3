@@ -78,7 +78,7 @@ public class SensorTest extends LinearOpMode
         //moveX(-1.0, 0.25);
 
         double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2;
-        final int DESIRED_D = 50;
+        final int DESIRED_D = 60;
 
         while(current >= DESIRED_D)
         {
@@ -94,29 +94,27 @@ public class SensorTest extends LinearOpMode
         MotorFrontY.setPower(0);
         MotorBackY.setPower(0);
 
-        sleep(10000);
+        double leftNormalizedColors = (leftColor.green()+leftColor.red()+leftColor.blue())/Math.pow(leftDistance.getDistance(DistanceUnit.MM),2);
+        double rightNormalizedColors = (rightColor.green()+rightColor.red()+rightColor.blue())/Math.pow(rightDistance.getDistance(DistanceUnit.MM),2);
 
-        if(leftColor.red()<redThreshold && leftColor.green()<greenThreshold)
+        if(leftNormalizedColors<0.5)
+        {
+            telemetry.addData("LEFT", null);
+            telemetry.update();
+        }
+
+        if (rightNormalizedColors<0.5)
         {
             telemetry.addData("CENTER", null);
             telemetry.update();
         }
 
-        if (rightColor.red()<redThreshold && leftColor.green()<greenThreshold)
+        if(leftNormalizedColors<0.5&&rightNormalizedColors<0.5)
         {
             telemetry.addData("RIGHT", null);
             telemetry.update();
         }
 
-        telemetry.addData("LEFT COLOR", leftColor.red());
-        telemetry.addData("LEFT COLOR", leftColor.green());
-        telemetry.addData("LEFT COLOR", leftColor.blue());
-        telemetry.addData("LEFT Distance", leftDistance.getDistance(DistanceUnit.MM));
-
-        telemetry.addData("RIGHT COLOR", rightColor.red());
-        telemetry.addData("RIGHT COLOR", rightColor.green());
-        telemetry.addData("RIGHT COLOR", rightColor.blue());
-        telemetry.addData("RIGHT Distance", rightDistance.getDistance(DistanceUnit.MM));
 
         MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);

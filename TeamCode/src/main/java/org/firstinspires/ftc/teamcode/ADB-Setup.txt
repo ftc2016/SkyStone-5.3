@@ -1,0 +1,18 @@
+Location => C:\Users\user\AppData\Local\Android\Sdk\platform-tools
+
+cd  C:\Users\user\AppData\Local\Android\Sdk\platform-tools
+
+C:\Users\user\AppData\Local\Android\Sdk\platform-tools>adb kill-server
+
+C:\Users\user\AppData\Local\Android\Sdk\platform-tools>adb devices
+List of devices attached
+ZY22575X7K      device
+
+
+C:\Users\user\AppData\Local\Android\Sdk\platform-tools>adb tcpip 5555
+
+C:\Users\user\AppData\Local\Android\Sdk\platform-tools>adb connect 192.168.49.1:5555
+connected to 192.168.49.1:5555
+
+C:\Users\user\AppData\Local\Android\Sdk\platform-tools>
+
