@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.GoBuilda.Development;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -9,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp(name = "ColorSensor")
+@Autonomous(name = "ColorSensor")
 public class SensorTest extends LinearOpMode
 {
     private ColorSensor leftColor, rightColor;
@@ -59,18 +60,41 @@ public class SensorTest extends LinearOpMode
             MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        MotorFrontX.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        MotorBackX.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+
+
     }
 
     public void detectBlock()
     {
 
-        moveX(-1.0, 0.25);
+        MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        while(( (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2.0) >= 60)
+        //moveX(-1.0, 0.25);
+
+        double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2;
+        final int DESIRED_D = 50;
+
+        while(current >= DESIRED_D)
         {
+            current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2;
+
+            MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
             MotorFrontY.setPower(0.1);
             MotorBackY.setPower(0.1);
         }
+
+        MotorFrontY.setPower(0);
+        MotorBackY.setPower(0);
+
+        sleep(10000);
 
         if(leftColor.red()<redThreshold && leftColor.green()<greenThreshold)
         {
@@ -93,6 +117,9 @@ public class SensorTest extends LinearOpMode
         telemetry.addData("RIGHT COLOR", rightColor.green());
         telemetry.addData("RIGHT COLOR", rightColor.blue());
         telemetry.addData("RIGHT Distance", rightDistance.getDistance(DistanceUnit.MM));
+
+        MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     void moveY(double inches, double power)
