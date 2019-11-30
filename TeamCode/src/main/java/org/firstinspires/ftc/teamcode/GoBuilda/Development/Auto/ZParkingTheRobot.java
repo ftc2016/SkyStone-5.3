@@ -11,10 +11,25 @@ import com.qualcomm.robotcore.hardware.Servo;
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 @Autonomous(name = "Park", group = "Both")
-public class ParkingTheRobot extends LinearOpMode
+public class ZParkingTheRobot extends LinearOpMode
 {
     private DcMotor MotorFrontY, MotorFrontX, MotorBackX, MotorBackY, motorRotate, motorExtend;
     Servo grasp, angle, foundation;
+
+    @Override
+    public void runOpMode() throws InterruptedException
+    {
+        initializeMotors();
+
+        waitForStart();
+
+        sleep(25000);
+
+        armRotate(300, 1);
+        armExtend(150, 1);
+        moveY(20, 1);
+
+    }
 
 
     void moveY(double inches, double power)
@@ -114,21 +129,5 @@ public class ParkingTheRobot extends LinearOpMode
         {
             telemetry.addData("arm is rotating to position", counts);
         }
-    }
-
-
-    @Override
-    public void runOpMode() throws InterruptedException
-    {
-        initializeMotors();
-
-        waitForStart();
-
-        sleep(25000);
-
-        armRotate(300, 1);
-        armExtend(150, 1);
-        moveY(20, 1);
-
     }
 }

@@ -21,8 +21,8 @@ import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-@Autonomous(name="Blue SkyStoneGrabbber", group = "Blue")
-public class AutoBlueSkyStoneGrabber extends LinearOpMode
+@Autonomous(name="Red SkystoneGrabber", group = "Red")
+public class RedSkyStoneGrabber extends LinearOpMode
 {
 
     //initalizing sensors
@@ -35,11 +35,6 @@ public class AutoBlueSkyStoneGrabber extends LinearOpMode
     //initializing motors
     private DcMotor MotorFrontY, MotorFrontX, MotorBackX, MotorBackY, motorRotate, motorExtend;
     Servo grasp, angle, foundation;
-
-    //initializing variables
-    int i=1;
-    boolean isLeft = false, isRight = false;
-    final int redThreshold = 1000, greenThreshold = 2000;
 
 
 
@@ -63,8 +58,6 @@ public class AutoBlueSkyStoneGrabber extends LinearOpMode
 
     }
 
-
-
     private void initializeMotors()
     {
         MotorFrontX = hardwareMap.dcMotor.get("fx");
@@ -72,8 +65,8 @@ public class AutoBlueSkyStoneGrabber extends LinearOpMode
         MotorFrontY = hardwareMap.dcMotor.get("fy");
         MotorBackY = hardwareMap.dcMotor.get("by");
 
-        MotorFrontX.setDirection(DcMotor.Direction.FORWARD);
-        MotorBackX.setDirection(DcMotor.Direction.REVERSE);
+        MotorFrontX.setDirection(DcMotor.Direction.REVERSE);
+        MotorBackX.setDirection(DcMotor.Direction.FORWARD);
         MotorFrontY.setDirection(DcMotor.Direction.FORWARD);
         MotorBackY.setDirection(DcMotor.Direction.REVERSE);
 
@@ -113,72 +106,6 @@ public class AutoBlueSkyStoneGrabber extends LinearOpMode
 
         leftDistance = hardwareMap.get(DistanceSensor.class, "left");
         rightDistance = hardwareMap.get(DistanceSensor.class, "right");
-    }
-
-    void initGyro()
-    {
-        // Set up the parameters with which we will use our IMU. Note that integration
-        // algorithm here just reports accelerations to the logcat log; it doesn't actually
-        // provide positional information.
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-    }
-
-
-    Orientation getAngles()
-    {
-        return (imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES));
-    }
-
-    float getRotationCorrection(float desiredAngle)
-    {
-        float motorPowerCorrection;
-        float angle_error;
-        angles = getAngles();
-
-        angle_error = desiredAngle - (float)angles.firstAngle;
-        motorPowerCorrection = -0.025f * angle_error;
-        motorPowerCorrection = min(max(motorPowerCorrection, -1.0f),1.0f);
-        return motorPowerCorrection;
-    }
-
-    void rotationCorrection()
-    {
-        float desired_angle = 0.0f;
-        float angle_error = 10000.0f;
-
-        telemetry.addData("Heading : ",angles.firstAngle);
-        telemetry.update();
-
-        angles = getAngles();
-
-        float motorPower = 0;
-
-        while (abs(angle_error) > 1.0f)
-        {
-            motorPower = getRotationCorrection(desired_angle);
-            MotorFrontX.setPower(motorPower);
-            MotorFrontY.setPower(motorPower);
-            MotorBackX.setPower(-motorPower);
-            MotorBackY.setPower(-motorPower);
-        }
-
-        telemetry.addData("Heading : ",angles.firstAngle);
-        telemetry.update();
     }
 
     private int inchesToCounts(double inches)

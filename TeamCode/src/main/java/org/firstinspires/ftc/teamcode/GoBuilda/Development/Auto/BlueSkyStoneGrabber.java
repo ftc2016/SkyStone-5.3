@@ -21,8 +21,8 @@ import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-@Autonomous(name="Red SkystoneGrabber", group = "Red")
-public class AutoRedSkyStoneGrabber extends LinearOpMode
+@Autonomous(name="Blue SkyStoneGrabbber", group = "Blue")
+public class BlueSkyStoneGrabber extends LinearOpMode
 {
 
     //initalizing sensors
@@ -36,10 +36,6 @@ public class AutoRedSkyStoneGrabber extends LinearOpMode
     private DcMotor MotorFrontY, MotorFrontX, MotorBackX, MotorBackY, motorRotate, motorExtend;
     Servo grasp, angle, foundation;
 
-    //initializing variables
-    int i=1;
-    boolean isLeft = false, isRight = false;
-    final int redThreshold = 1000, greenThreshold = 2000;
 
 
 
@@ -60,7 +56,6 @@ public class AutoRedSkyStoneGrabber extends LinearOpMode
 //        grasp.setPosition(0);
 //        sleep(100);
 //        moveX(-79, 0.2);
-
     }
 
 
@@ -72,8 +67,8 @@ public class AutoRedSkyStoneGrabber extends LinearOpMode
         MotorFrontY = hardwareMap.dcMotor.get("fy");
         MotorBackY = hardwareMap.dcMotor.get("by");
 
-        MotorFrontX.setDirection(DcMotor.Direction.REVERSE);
-        MotorBackX.setDirection(DcMotor.Direction.FORWARD);
+        MotorFrontX.setDirection(DcMotor.Direction.FORWARD);
+        MotorBackX.setDirection(DcMotor.Direction.REVERSE);
         MotorFrontY.setDirection(DcMotor.Direction.FORWARD);
         MotorBackY.setDirection(DcMotor.Direction.REVERSE);
 
@@ -121,8 +116,8 @@ public class AutoRedSkyStoneGrabber extends LinearOpMode
         // algorithm here just reports accelerations to the logcat log; it doesn't actually
         // provide positional information.
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = com.qualcomm.hardware.bosch.BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = com.qualcomm.hardware.bosch.BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
         parameters.loggingEnabled = true;
         parameters.loggingTag = "IMU";
