@@ -16,12 +16,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-@Autonomous(name="Scrim 3 Blue")
-public class AutoTest extends LinearOpMode
+@Autonomous(name="Red SkystoneGrabber", group = "Red")
+public class AutoRedSkyStoneGrabber extends LinearOpMode
 {
 
     //initalizing sensors
@@ -50,12 +51,15 @@ public class AutoTest extends LinearOpMode
 
         waitForStart();
 
+        moveX(-6, 0.2);
         detectBlock();
-        moveX(54, 0.2);
-        grasp.setPosition(0);
-        sleep(100);
-        moveX(-79, 0.2);
-        collectSky2();
+
+        collectBlock();
+
+//        moveX(54, 0.2);
+//        grasp.setPosition(0);
+//        sleep(100);
+//        moveX(-79, 0.2);
 
     }
 
@@ -78,6 +82,12 @@ public class AutoTest extends LinearOpMode
         MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        MotorFrontY.setZeroPowerBehavior(BRAKE);
+        MotorBackY.setZeroPowerBehavior(BRAKE);
+        MotorBackX.setZeroPowerBehavior(BRAKE);
+        MotorFrontX.setZeroPowerBehavior(BRAKE);
+
+
         motorExtend = hardwareMap.dcMotor.get("extend");
         motorExtend.setDirection(DcMotorSimple.Direction.REVERSE);
         motorExtend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -85,7 +95,7 @@ public class AutoTest extends LinearOpMode
         motorRotate = hardwareMap.dcMotor.get("rotate");
         motorRotate.setDirection(DcMotorSimple.Direction.REVERSE);
         motorRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorRotate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorRotate.setZeroPowerBehavior(BRAKE);
 
         grasp = hardwareMap.servo.get("grasp");
         foundation = hardwareMap.servo.get("foundation");
@@ -98,11 +108,11 @@ public class AutoTest extends LinearOpMode
 
     private void initSensors()
     {
-        leftColor = hardwareMap.get(ColorSensor.class, "leftColor");
-        rightColor = hardwareMap.get(ColorSensor.class, "rightColor");
+        leftColor = hardwareMap.get(ColorSensor.class, "left");
+        rightColor = hardwareMap.get(ColorSensor.class, "right");
 
-        leftDistance = hardwareMap.get(DistanceSensor.class, "leftColor");
-        rightDistance = hardwareMap.get(DistanceSensor.class, "rightColor");
+        leftDistance = hardwareMap.get(DistanceSensor.class, "left");
+        rightDistance = hardwareMap.get(DistanceSensor.class, "right");
     }
 
     void initGyro()
@@ -183,45 +193,63 @@ public class AutoTest extends LinearOpMode
 
     private void detectBlock()
     {
-        double distance = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2.0;
-        while(distance >= 60)
+        char blockPos = ' ';
+            MotorFrontY.setZeroPowerBehavior(BRAKE);
+            MotorBackY.setZeroPowerBehavior(BRAKE);
+
+            double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2;
+            final int DESIRED_D = 50;
+
+            while(current >= DESIRED_D)
+            {
+                current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2;
+
+                MotorFrontY.setPower(0.15);
+                MotorBackY.setPower(0.15);
+            }
+
+            MotorFrontY.setPower(0);
+            MotorBackY.setPower(0);
+
+            double leftNormalizedColors = (leftColor.green()+leftColor.red()+leftColor.blue())/Math.pow(leftDistance.getDistance(DistanceUnit.MM),2);
+            double rightNormalizedColors = (rightColor.green()+rightColor.red()+rightColor.blue())/Math.pow(rightDistance.getDistance(DistanceUnit.MM),2);
+
+        if (rightNormalizedColors<0.5&&leftNormalizedColors>0.5)
         {
-            moveY(0.1, 0.1);
-        }
-        sleep(500);
-        if(leftColor.red()<redThreshold && leftColor.green()<greenThreshold)
-        {
-            isLeft = true;
-            telemetry.addData("leftColor", null);
-            telemetry.update();
+            blockPos = 'r';
+            telemetry.addData("right", null);
+            sleep(1000);
         }
 
-        if (rightColor.red()<redThreshold && leftColor.green()<greenThreshold)
+        if(leftNormalizedColors<0.5&&rightNormalizedColors>0.5)
         {
-            isRight = true;
-            telemetry.addData("rightColor", null);
-            telemetry.update();
+            blockPos = 'c';
+            telemetry.addData("center", null);
+            sleep(1000);
         }
 
-        if(isRight)
-        {
-            moveX(5,0.5);
-            moveY(-2, 0.5);
-            collectSky();
-        }
-        else if(isLeft)
-        {
+         if(leftNormalizedColors<0.5&&rightNormalizedColors<0.5)
+         {
+            blockPos = 'l';
+             telemetry.addData("left", null);
+             sleep(1000);
+         }
+         sleep(1000);
+         telemetry.update();
+         sleep(1000);
 
-            moveY(-2, 0.5);
-            collectSky();
-
-        }
-        else
-        {
-            moveY(-2, 0.5);
-            moveX(-10, 0.5);
-            collectSky();
-        }
+         switch(blockPos)
+         {
+             case 'r': moveX(-4, 0.2);
+                 break;
+             case 'c': moveX(4, 0.2);
+                 break;
+             case 'l': moveX(12, 0.2);
+                 break;
+             default:
+                 moveY(-2, 0.7);
+                 detectBlock();
+         }
     }
 
     void moveY(double inches, double power)
@@ -264,7 +292,7 @@ public class AutoTest extends LinearOpMode
             }
     }
 
-    void rotate(int distance, int power)
+    void botRotate(int distance, int power)
     {
             MotorBackY.setPower(power);
             MotorBackX.setPower(power);
@@ -278,82 +306,117 @@ public class AutoTest extends LinearOpMode
             MotorFrontY.setTargetPosition(MotorFrontY.getCurrentPosition() + COUNTS);
             MotorBackY.setTargetPosition(MotorBackY.getCurrentPosition() - COUNTS);
 
-        MotorFrontX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        MotorBackX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            MotorFrontX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            MotorBackX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    private void collectSky()
+
+    void armExtend(int counts, double power)
     {
-        motorRotate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        grasp.setPosition(0);
-        motorExtend.setPower(1);
-        grasp.setPosition(0);
-        angle.setPosition(0.65);
-        motorRotate.setPower(0.7);
-        if(i==1)
+        motorExtend.setPower(power);
+
+        motorExtend.setTargetPosition(motorExtend.getCurrentPosition()+counts);
+
+        motorExtend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while(opModeIsActive() && motorExtend.isBusy())
         {
-            grasp.setPosition(0);
-            motorExtend.setTargetPosition(motorExtend.getCurrentPosition() + 750);
-            motorExtend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorRotate.setTargetPosition(motorRotate.getCurrentPosition() + 550);
+            telemetry.addData("arm is extending to position", counts);
         }
-        while (motorRotate.isBusy()) { }
-        motorRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        grasp.setPosition(0);
-//        MotorFrontY.setPower(0.1);
-//        MotorBackY.setPower(0.1);
-
-//        MotorFrontY.setTargetPosition((int)(MotorFrontY.getCurrentPosition() + 1250/2));
-//        MotorBackY.setTargetPosition((int)(MotorBackY.getCurrentPosition() + 1250/2));
-
-//        MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (opModeIsActive() && MotorFrontY.isBusy() && MotorBackY.isBusy()) { }
-        while (motorExtend.isBusy()) { }
-        grasp.setPosition(1);
-
-        angle.setPosition(0.65);
-        sleep(250);
-        grasp.setPosition(1);
-        sleep(250);
-        grasp.setPosition(1);
-        motorRotate.setPower(0.5);
-        motorRotate.setTargetPosition(motorRotate.getCurrentPosition() - 800);
-        motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (motorRotate.isBusy()) { }
-        MotorBackY.setPower(0.1);
-        MotorFrontY.setPower(0.1);
-        MotorBackY.setTargetPosition(MotorBackY.getCurrentPosition() - 2240/4);
-        MotorFrontY.setTargetPosition(MotorFrontY.getCurrentPosition() - 2240/4);
-        MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (opModeIsActive() && MotorFrontY.isBusy() && MotorBackY.isBusy()) { }
-        motorRotate.setPower(0.5);
-        motorRotate.setTargetPosition(motorRotate.getCurrentPosition() -50);
-        motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (motorRotate.isBusy()) {
-        }
-        i++;
     }
 
-    void collectSky2()
+    void armRotate(int counts, double power)
     {
-        motorRotate.setPower(0.5);
-        motorRotate.setTargetPosition(motorRotate.getCurrentPosition() +300);
-        motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        grasp.setPosition(0);
-        moveY(16, 0.2);
-        grasp.setPosition(1);
-        sleep(500);
-        moveY(-17, 0.2);
-        grasp.setPosition(1);
-        moveX(79, 0.2);
-        grasp.setPosition(0);
-        moveX(-12.5, 1);
-        moveY(-10, 0.5);
+        motorRotate.setPower(power);
 
+        motorRotate.setTargetPosition(motorRotate.getCurrentPosition()+counts);
+
+        motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while(opModeIsActive() && motorRotate.isBusy())
+        {
+            telemetry.addData("arm is rotating to position", counts);
+        }
     }
+
+    void collectBlock()
+    {
+        moveY(-6, 0.3);
+        armRotate(600, 0.75);
+        moveY(7, 0.6);
+    }
+
+//    private void collectSky()
+//    {
+//        motorRotate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        grasp.setPosition(0);
+//        motorExtend.setPower(1);
+//        grasp.setPosition(0);
+//        angle.setPosition(0.65);
+//        motorRotate.setPower(0.7);
+//        if(i==1)
+//        {
+//            grasp.setPosition(0);
+//            motorExtend.setTargetPosition(motorExtend.getCurrentPosition() + 750);
+//            motorExtend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            motorRotate.setTargetPosition(motorRotate.getCurrentPosition() + 550);
+//        }
+//        while (motorRotate.isBusy()) { }
+//        motorRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        grasp.setPosition(0);
+////        MotorFrontY.setPower(0.1);
+////        MotorBackY.setPower(0.1);
+//
+////        MotorFrontY.setTargetPosition((int)(MotorFrontY.getCurrentPosition() + 1250/2));
+////        MotorBackY.setTargetPosition((int)(MotorBackY.getCurrentPosition() + 1250/2));
+//
+////        MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+////        MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        while (opModeIsActive() && MotorFrontY.isBusy() && MotorBackY.isBusy()) { }
+//        while (motorExtend.isBusy()) { }
+//        grasp.setPosition(1);
+//
+//        angle.setPosition(0.65);
+//        sleep(250);
+//        grasp.setPosition(1);
+//        sleep(250);
+//        grasp.setPosition(1);
+//        motorRotate.setPower(0.5);
+//        motorRotate.setTargetPosition(motorRotate.getCurrentPosition() - 800);
+//        motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        while (motorRotate.isBusy()) { }
+//        MotorBackY.setPower(0.1);
+//        MotorFrontY.setPower(0.1);
+//        MotorBackY.setTargetPosition(MotorBackY.getCurrentPosition() - 2240/4);
+//        MotorFrontY.setTargetPosition(MotorFrontY.getCurrentPosition() - 2240/4);
+//        MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        while (opModeIsActive() && MotorFrontY.isBusy() && MotorBackY.isBusy()) { }
+//        motorRotate.setPower(0.5);
+//        motorRotate.setTargetPosition(motorRotate.getCurrentPosition() -50);
+//        motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        while (motorRotate.isBusy()) {
+//        }
+//        i++;
+//    }
+//
+//    void collectSky2()
+//    {
+//        motorRotate.setPower(0.5);
+//        motorRotate.setTargetPosition(motorRotate.getCurrentPosition() +300);
+//        motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        grasp.setPosition(0);
+//        moveY(16, 0.2);
+//        grasp.setPosition(1);
+//        sleep(500);
+//        moveY(-17, 0.2);
+//        grasp.setPosition(1);
+//        moveX(79, 0.2);
+//        grasp.setPosition(0);
+//        moveX(-12.5, 1);
+//        moveY(-10, 0.5);
+//    }
 
 }

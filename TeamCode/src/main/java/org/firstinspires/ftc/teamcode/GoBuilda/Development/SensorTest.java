@@ -97,19 +97,19 @@ public class SensorTest extends LinearOpMode
         double leftNormalizedColors = (leftColor.green()+leftColor.red()+leftColor.blue())/Math.pow(leftDistance.getDistance(DistanceUnit.MM),2);
         double rightNormalizedColors = (rightColor.green()+rightColor.red()+rightColor.blue())/Math.pow(rightDistance.getDistance(DistanceUnit.MM),2);
 
-        if(leftNormalizedColors<0.5)
+        if(leftNormalizedColors<0.5&&rightNormalizedColors<0.5)
         {
             telemetry.addData("LEFT", null);
             telemetry.update();
         }
 
-        if (rightNormalizedColors<0.5)
+        if (leftNormalizedColors<0.5&&rightNormalizedColors>0.5)
         {
             telemetry.addData("CENTER", null);
             telemetry.update();
         }
 
-        if(leftNormalizedColors<0.5&&rightNormalizedColors<0.5)
+        if(rightNormalizedColors<0.5&&leftNormalizedColors>0.5)
         {
             telemetry.addData("RIGHT", null);
             telemetry.update();

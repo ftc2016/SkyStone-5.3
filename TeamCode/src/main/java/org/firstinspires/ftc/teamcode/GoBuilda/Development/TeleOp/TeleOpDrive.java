@@ -23,6 +23,10 @@ public class TeleOpDrive extends OpMode
     private double armPosCurrent, armPosDes, armPosError;
     private double extendPosCurrent, extendPosDes, extendPosError;
 
+    double multiplier = 1;
+    boolean turtle = false;
+
+
 
     DcMotor MotorFrontY;
     DcMotor MotorFrontX;
@@ -40,49 +44,49 @@ public class TeleOpDrive extends OpMode
     @Override
     public void loop()
     {
-        init();
+        if(turtle)
+            multiplier = 0.65;
+        else
+            multiplier = 1;
 
         // initializing wheel variables
-        float powerXWheels = 0;
-        float powerYWheels = 0;
+        double powerXWheels = 0;
+        double powerYWheels = 0;
 
         // Handle regular movement
-        powerYWheels += gamepad1.left_stick_y;
+        powerYWheels = gamepad1.left_stick_y;
 
         // Handle sliding movement
-        powerXWheels += gamepad1.right_stick_x;
+        powerXWheels = gamepad1.right_stick_x;
 
+        MotorBackX.setPower((Math.abs(powerXWheels)*powerXWheels)*multiplier);
+        MotorFrontX.setPower((Math.abs(powerXWheels)*powerXWheels)*multiplier);
 
-        // Handle turning movement
-        double maxX = (double) powerXWheels;
-        double maxY = (double) powerYWheels;
-
-
-        MotorBackX.setPower((Math.abs(maxX)*maxX));
-        MotorFrontX.setPower((Math.abs(maxX)*maxX));
-
-        MotorBackY.setPower((Math.abs(maxY)*maxY));
-        MotorFrontY.setPower((Math.abs(maxY)*maxY));
+        MotorBackY.setPower((Math.abs(powerYWheels)*powerYWheels)*multiplier);
+        MotorFrontY.setPower((Math.abs(powerYWheels)*powerYWheels)*multiplier);
 
         //Turning clockwise
         float rotationCW = gamepad1.right_trigger;
         float rotationACW = gamepad1.left_trigger;
 
+        if(gamepad1.a)
+            turtle = !turtle;
+
         if(rotationACW !=0)
         {
-            MotorFrontX.setPower(-0.5);
-            MotorFrontY.setPower(0.5);
-            MotorBackX.setPower(0.5);
-            MotorBackY.setPower(-0.5);
+            MotorFrontX.setPower(-gamepad1.left_trigger);
+            MotorFrontY.setPower(gamepad1.left_trigger);
+            MotorBackX.setPower(gamepad1.left_trigger);
+            MotorBackY.setPower(-gamepad1.left_trigger);
         }
 
         //Turning anticlockwise
         if (rotationCW !=0)
         {
-            MotorFrontX.setPower(0.5);
-            MotorFrontY.setPower(-0.5);
-            MotorBackX.setPower(-0.5);
-            MotorBackY.setPower(0.5);
+            MotorFrontX.setPower(gamepad1.right_trigger);
+            MotorFrontY.setPower(-gamepad1.right_trigger);
+            MotorBackX.setPower(-gamepad1.right_trigger);
+            MotorBackY.setPower(gamepad1.right_trigger);
         }
 
         if (gamepad2.dpad_up&&position < 1.1)
@@ -150,12 +154,19 @@ public class TeleOpDrive extends OpMode
         armExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        MotorFrontX.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorBackX.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         grasp = hardwareMap.servo.get("grasp");
         foundation = hardwareMap.servo.get("foundation");
         angle = hardwareMap.servo.get("angle");
 
         colorLeft = hardwareMap.get(ColorSensor.class, "left");
         colorRight = hardwareMap.get(ColorSensor.class, "right");
+
+
 
     }
 }
