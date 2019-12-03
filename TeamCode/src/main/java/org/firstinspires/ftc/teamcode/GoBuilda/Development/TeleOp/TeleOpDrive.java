@@ -12,10 +12,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class TeleOpDrive extends OpMode
 {
 
-    //Initializing all necessary variables
-    float y;
-    float x;
-
     private double rotnPosScale = 20, rotnPowScale = .002;
     private double extendPosScale = 5, extendPowScale = 0.002;
     double armCommand, armPosIntegrator = 0;
@@ -37,7 +33,7 @@ public class TeleOpDrive extends OpMode
 
     private ColorSensor colorLeft, colorRight;
 
-    Servo grasp, angle, foundation;
+    Servo grasp1, grasp2, angle1, angle2, foundation1, foundation2;
 
     double position = 0, ANGLE = 0.731992018;
 
@@ -45,7 +41,7 @@ public class TeleOpDrive extends OpMode
     public void loop()
     {
         if(turtle)
-            multiplier = 0.65;
+            multiplier = 0.45;
         else
             multiplier = 1;
 
@@ -91,30 +87,38 @@ public class TeleOpDrive extends OpMode
 
         if (gamepad2.dpad_up&&position < 1.1)
         {
-            ANGLE += 0.02;
+            ANGLE += 0.1;
         }
         if (gamepad2.dpad_down && position > -0.1)
         {
-            ANGLE += -0.02;
+            ANGLE += -0.1;
         }
         if (gamepad2.left_bumper)
         {
-            grasp.setPosition(1);
+            grasp1.setPosition(1);
+            grasp2.setPosition(0);
         }
         if (gamepad2.right_bumper) {
-            grasp.setPosition(0);
+            grasp1.setPosition(0);
+            grasp2.setPosition(1);
         }
 
         if(gamepad1.dpad_up)
         {
-            foundation.setPosition(0);
+            foundation1.setPosition(0);
+            foundation2.setPosition(0);
         }
         else if(gamepad1.dpad_down)
         {
-            foundation.setPosition(1);
+            foundation1.setPosition(1);
+            foundation2.setPosition(1);
         }
 
-        angle.setPosition(-0.00027*(armRotate.getCurrentPosition())+ ANGLE);
+        angle1.setPosition(ANGLE);
+        angle2.setPosition((1-ANGLE));
+
+        angle1.setPosition(-0.00027*(armRotate.getCurrentPosition())+ ANGLE);
+        angle2.setPosition(1-(-0.00027*(armRotate.getCurrentPosition())+ ANGLE));
 
         armPosCurrent = armRotate.getCurrentPosition();
 
@@ -125,7 +129,6 @@ public class TeleOpDrive extends OpMode
         armRotate.setPower(armCommand);
 
         armExtend.setPower(gamepad2.left_stick_x * Math.abs(gamepad2.left_stick_x));
-
     }
 
 
@@ -159,14 +162,14 @@ public class TeleOpDrive extends OpMode
         MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        grasp = hardwareMap.servo.get("grasp");
-        foundation = hardwareMap.servo.get("foundation");
-        angle = hardwareMap.servo.get("angle");
+        grasp1 = hardwareMap.servo.get("grasp1");
+        grasp2 = hardwareMap.servo.get("grasp2");
+        foundation1 = hardwareMap.servo.get("foundation1");
+        foundation2 = hardwareMap.servo.get("foundation2");
+        angle1 = hardwareMap.servo.get("angle1");
+        angle2 = hardwareMap.servo.get("angle2");
 
         colorLeft = hardwareMap.get(ColorSensor.class, "left");
         colorRight = hardwareMap.get(ColorSensor.class, "right");
-
-
-
     }
 }
