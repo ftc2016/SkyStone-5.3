@@ -21,21 +21,20 @@ import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-@Autonomous(name="Red SkystoneGrabber", group = "Red")
+@Autonomous(name="Red SkyStoneGrabbber", group = "Red")
 public class RedSkyStoneGrabber extends LinearOpMode
 {
 
     //initalizing sensors
     private ColorSensor leftColor, rightColor;
     private DistanceSensor leftDistance, rightDistance;
-        //gyro init
-        BNO055IMU imu;
-        Orientation angles;
+    //gyro init
+    BNO055IMU imu;
+    Orientation angles;
 
     //initializing motors
     private DcMotor MotorFrontY, MotorFrontX, MotorBackX, MotorBackY, motorRotate, motorExtend;
-    Servo grasp, angle, foundation1, foundation2;
-
+    Servo grasp1, grasp2, angle1, angle2, foundation1, foundation2;
 
 
     @Override
@@ -46,306 +45,292 @@ public class RedSkyStoneGrabber extends LinearOpMode
 
         waitForStart();
 
-        moveX(-6, 0.2);
+        moveX(6, 0.2);
+        sleep(250);
         detectBlock();
 
         collectBlock();
 
-//        moveX(54, 0.2);
-//        grasp.setPosition(0);
-//        sleep(100);
-//        moveX(-79, 0.2);
+        moveX(-54, 0.2);
+
+        agaga("release");
+        agaga("release");
+
+        moveX(79, 0.2);
+
+        collectBlock2();
+
 
     }
 
-    private void initializeMotors()
-    {
+
+    private void initializeMotors() {
         MotorFrontX = hardwareMap.dcMotor.get("fx");
         MotorBackX = hardwareMap.dcMotor.get("bx");
         MotorFrontY = hardwareMap.dcMotor.get("fy");
         MotorBackY = hardwareMap.dcMotor.get("by");
+        motorExtend = hardwareMap.dcMotor.get("extend");
+        motorRotate = hardwareMap.dcMotor.get("rotate");
 
-        MotorFrontX.setDirection(DcMotor.Direction.REVERSE);
-        MotorBackX.setDirection(DcMotor.Direction.FORWARD);
-        MotorFrontY.setDirection(DcMotor.Direction.FORWARD);
-        MotorBackY.setDirection(DcMotor.Direction.REVERSE);
+        MotorFrontX.setDirection(DcMotorSimple.Direction.REVERSE);
+        MotorBackX.setDirection(DcMotorSimple.Direction.FORWARD);
+        MotorFrontY.setDirection(DcMotorSimple.Direction.FORWARD);
+        MotorBackY.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorExtend.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorRotate.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         MotorFrontX.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MotorFrontX.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         MotorBackX.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MotorBackX.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MotorFrontY.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MotorBackY.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        MotorFrontY.setZeroPowerBehavior(BRAKE);
-        MotorBackY.setZeroPowerBehavior(BRAKE);
-        MotorBackX.setZeroPowerBehavior(BRAKE);
-        MotorFrontX.setZeroPowerBehavior(BRAKE);
-
-
-        motorExtend = hardwareMap.dcMotor.get("extend");
-        motorExtend.setDirection(DcMotorSimple.Direction.REVERSE);
         motorExtend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        motorRotate = hardwareMap.dcMotor.get("rotate");
-        motorRotate.setDirection(DcMotorSimple.Direction.REVERSE);
         motorRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorRotate.setZeroPowerBehavior(BRAKE);
+        motorRotate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        grasp = hardwareMap.servo.get("grasp");
+
+        MotorFrontX.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorBackX.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        grasp1 = hardwareMap.servo.get("grasp1");
+        grasp2 = hardwareMap.servo.get("grasp2");
         foundation1 = hardwareMap.servo.get("foundation1");
         foundation2 = hardwareMap.servo.get("foundation2");
-        angle = hardwareMap.servo.get("angle");
+        angle1 = hardwareMap.servo.get("angle1");
+        angle2 = hardwareMap.servo.get("angle2");
 
-        grasp.setPosition(1);
-        angle.setPosition(0.65);
-        foundation1.setPosition(0);
-        foundation2.setPosition(0);
+        grasp1.setPosition(1);
+        grasp2.setPosition(0);
+
     }
 
-    private void initSensors()
-    {
+    private void initSensors() {
         leftColor = hardwareMap.get(ColorSensor.class, "left");
         rightColor = hardwareMap.get(ColorSensor.class, "right");
+
+        leftColor.enableLed(true);
+        rightColor.enableLed(true);
 
         leftDistance = hardwareMap.get(DistanceSensor.class, "left");
         rightDistance = hardwareMap.get(DistanceSensor.class, "right");
     }
 
-    private int inchesToCounts(double inches)
-    {
+    private int inchesToCounts(double inches) {
         //wheel specification
         final double Servocity_Omnni_Circumference = Math.PI * 4;
         final double GoBuilda_YJ_435_eventsPerRev = 383.6;
-        final double COUNTS_PER_REVOLUTION = GoBuilda_YJ_435_eventsPerRev/Servocity_Omnni_Circumference;
+        final double COUNTS_PER_REVOLUTION = GoBuilda_YJ_435_eventsPerRev / Servocity_Omnni_Circumference;
 
-        return (int)(COUNTS_PER_REVOLUTION*inches);
+        return (int) (COUNTS_PER_REVOLUTION * inches);
     }
 
     private void detectBlock()
     {
-        char blockPos = ' ';
-            MotorFrontY.setZeroPowerBehavior(BRAKE);
-            MotorBackY.setZeroPowerBehavior(BRAKE);
+        MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorFrontY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        MotorBackY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-            double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2;
-            final int DESIRED_D = 50;
 
-            while(current >= DESIRED_D)
-            {
-                current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2;
+        char blockPos = ' ';                //0.713
 
-                MotorFrontY.setPower(0.15);
-                MotorBackY.setPower(0.15);
-            }
+        double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
+        final int DESIRED_D = 50;
 
-            MotorFrontY.setPower(0);
-            MotorBackY.setPower(0);
+        while (current >= DESIRED_D) {
+            current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
 
-            double leftNormalizedColors = (leftColor.green()+leftColor.red()+leftColor.blue())/Math.pow(leftDistance.getDistance(DistanceUnit.MM),2);
-            double rightNormalizedColors = (rightColor.green()+rightColor.red()+rightColor.blue())/Math.pow(rightDistance.getDistance(DistanceUnit.MM),2);
+            telemetry.addData("Moving to set Distance", null);
+            telemetry.update();
 
-        if (rightNormalizedColors<0.5&&leftNormalizedColors>0.5)
-        {
-            blockPos = 'r';
+            MotorFrontY.setPower(0.3);
+            MotorBackY.setPower(0.3);
+        }
+
+        MotorFrontY.setPower(-0.05);
+        MotorBackY.setPower(-0.05);
+
+        double leftNormalizedColors = (leftColor.green() + leftColor.red() + leftColor.blue()) / Math.pow(leftDistance.getDistance(DistanceUnit.MM), 2);
+        double rightNormalizedColors = (rightColor.green() + rightColor.red() + rightColor.blue()) / Math.pow(rightDistance.getDistance(DistanceUnit.MM), 2);
+
+        sleep(500);
+
+        if (rightNormalizedColors < 0.5 && leftNormalizedColors > 0.5) {
+            moveX(4, 0.2);
             telemetry.addData("right", null);
-            sleep(1000);
         }
 
-        if(leftNormalizedColors<0.5&&rightNormalizedColors>0.5)
-        {
-            blockPos = 'c';
+        if (leftNormalizedColors < 0.5 && rightNormalizedColors > 0.5) {
+            moveX(-4, 0.2);
             telemetry.addData("center", null);
-            sleep(1000);
         }
 
-         if(leftNormalizedColors<0.5&&rightNormalizedColors<0.5)
-         {
-            blockPos = 'l';
-             telemetry.addData("left", null);
-             sleep(1000);
-         }
-         sleep(1000);
-         telemetry.update();
-         sleep(1000);
+        if (leftNormalizedColors < 0.5 && rightNormalizedColors < 0.5) {
+            moveX(-12, 0.2);
+            telemetry.addData("left", null);
+        }
+        telemetry.update();
 
-         switch(blockPos)
-         {
-             case 'r': moveX(-4, 0.2);
-                 break;
-             case 'c': moveX(4, 0.2);
-                 break;
-             case 'l': moveX(12, 0.2);
-                 break;
-             default:
-                 moveY(-2, 0.7);
-                 detectBlock();
-         }
+        MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    void moveY(double inches, double power)
-    {
+    void agaga(String position) {
+        if (position.equals("release"))
+        {
+            angle1.setPosition(1);
+            angle2.setPosition(0);
+
+            grasp1.setPosition(1);
+            grasp2.setPosition(0);
+
+            angle1.setPosition(0);
+            angle1.setPosition(1);
+        }
+
+        if (position.equals("grasp")) {
+            grasp1.setPosition(0);
+            grasp2.setPosition(1);
+        }
+    }
+
+    void moveY(double inches, double power) {
         int counts = inchesToCounts(inches);
 
-            MotorFrontY.setPower(-power);
-            MotorBackY.setPower(-power);
+        MotorFrontY.setPower(-power);
+        MotorBackY.setPower(-power);
 
-            MotorFrontY.setTargetPosition((MotorFrontY.getCurrentPosition() + (counts)));
-            MotorBackY.setTargetPosition((MotorBackY.getCurrentPosition() + (counts)));
+        MotorFrontY.setTargetPosition((MotorFrontY.getCurrentPosition() + (counts)));
+        MotorBackY.setTargetPosition((MotorBackY.getCurrentPosition() + (counts)));
 
-            MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            while (opModeIsActive() && MotorBackY.isBusy() && MotorFrontY.isBusy())
-            {
-                telemetry.addData("Running motor Y front and back", "Encoders");
-                telemetry.update();
-            }
+        while (opModeIsActive() && MotorBackY.isBusy() && MotorFrontY.isBusy()) {
+            telemetry.addData("Move Y method error = ", MotorFrontY.getTargetPosition() - (MotorFrontY.getCurrentPosition() + counts));
+        }
     }
 
-    void moveX(double inches, double power)
-    {
+    private void moveX(double inches, double power) {
         int counts = inchesToCounts(inches);
 
-            MotorFrontX.setPower(power);
-            MotorBackX.setPower(power);
+        MotorFrontX.setPower(power);
+        MotorBackX.setPower(power);
 
-            MotorFrontX.setTargetPosition((MotorFrontX.getCurrentPosition() + (counts)));
-            MotorBackX.setTargetPosition((MotorBackX.getCurrentPosition() + (counts)));
+        MotorFrontX.setTargetPosition((MotorFrontX.getCurrentPosition() + (counts)));
+        MotorBackX.setTargetPosition((MotorBackX.getCurrentPosition() + (counts)));
 
-            MotorFrontX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            MotorBackX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        MotorFrontX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        MotorBackX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            while (opModeIsActive() && MotorBackX.isBusy() && MotorFrontX.isBusy())
-            {
-                telemetry.addData("Running motor X front and back", "Encoders");
-                telemetry.update();
-            }
+        while (opModeIsActive() && MotorBackX.isBusy() && MotorFrontX.isBusy())
+        {
+            telemetry.addData("Move X method error = ", MotorFrontX.getTargetPosition() - (MotorFrontX.getCurrentPosition() + counts));
+            telemetry.update();
+        }
     }
 
-    void botRotate(int distance, int power)
-    {
-            MotorBackY.setPower(power);
-            MotorBackX.setPower(power);
-            MotorFrontX.setPower(power);
-            MotorFrontY.setPower(power);
+    void botRotate(int distance, int power) {
+        MotorBackY.setPower(power);
+        MotorBackX.setPower(power);
+        MotorFrontX.setPower(power);
+        MotorFrontY.setPower(power);
 
-            int COUNTS = inchesToCounts(distance);
+        int COUNTS = inchesToCounts(distance);
 
-            MotorFrontX.setTargetPosition(MotorFrontX.getCurrentPosition() + (COUNTS));
-            MotorBackX.setTargetPosition(MotorBackX.getCurrentPosition() - (COUNTS));
-            MotorFrontY.setTargetPosition(MotorFrontY.getCurrentPosition() + COUNTS);
-            MotorBackY.setTargetPosition(MotorBackY.getCurrentPosition() - COUNTS);
+        MotorFrontX.setTargetPosition(MotorFrontX.getCurrentPosition() + (COUNTS));
+        MotorBackX.setTargetPosition(MotorBackX.getCurrentPosition() - (COUNTS));
+        MotorFrontY.setTargetPosition(MotorFrontY.getCurrentPosition() + COUNTS);
+        MotorBackY.setTargetPosition(MotorBackY.getCurrentPosition() - COUNTS);
 
-            MotorFrontX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            MotorBackX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        MotorFrontX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        MotorBackX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
 
-    void armExtend(int counts, double power)
-    {
+    void armExtend(int counts, double power) {
+        motorExtend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         motorExtend.setPower(power);
 
-        motorExtend.setTargetPosition(motorExtend.getCurrentPosition()+counts);
+        motorExtend.setTargetPosition(motorExtend.getCurrentPosition() + counts);
 
         motorExtend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while(opModeIsActive() && motorExtend.isBusy())
-        {
-            telemetry.addData("arm is extending to position", counts);
+        while (opModeIsActive() && motorExtend.isBusy()) {
+            telemetry.addData("extension error = ", motorExtend.getTargetPosition() - (motorExtend.getCurrentPosition() + counts));
+            telemetry.update();
+            if((motorExtend.getCurrentPosition()> motorExtend.getTargetPosition()-20) && (motorExtend.getCurrentPosition()<motorExtend.getTargetPosition()+20))
+                break;
         }
     }
 
-    void armRotate(int counts, double power)
-    {
+    void armRotate(int counts, double power) {
+
+        motorRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         motorRotate.setPower(power);
 
-        motorRotate.setTargetPosition(motorRotate.getCurrentPosition()+counts);
+        motorRotate.setTargetPosition(motorRotate.getCurrentPosition() + counts);
 
         motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while(opModeIsActive() && motorRotate.isBusy())
+        while (opModeIsActive() && motorRotate.isBusy())
         {
-            telemetry.addData("arm is rotating to position", counts);
+            telemetry.addData(" rotation error = ", motorRotate.getTargetPosition() - (motorRotate.getCurrentPosition() + counts));
+            telemetry.update();
+            if((motorRotate.getCurrentPosition()> motorRotate.getTargetPosition()-20) && (motorRotate.getCurrentPosition()<motorRotate.getTargetPosition()+20))
+                break;
         }
     }
 
     void collectBlock()
     {
+        telemetry.addData("inside collect block method", null);
+        telemetry.update();
         moveY(-6, 0.3);
-        armRotate(600, 0.75);
-        moveY(7, 0.6);
+
+        armRotate(200,1);
+        armExtend(850,1);
+        armRotate(370, 1);
+
+
+        sleep(100);
+        agaga("grasp");
+        sleep(100);
+
+        armRotate(-200, 1);
+        moveY(-12, 0.3);
+        telemetry.addData("outside collectblock method", null);
+        telemetry.update();
+
     }
 
-//    private void collectSky()
-//    {
-//        motorRotate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        grasp.setPosition(0);
-//        motorExtend.setPower(1);
-//        grasp.setPosition(0);
-//        angle.setPosition(0.65);
-//        motorRotate.setPower(0.7);
-//        if(i==1)
-//        {
-//            grasp.setPosition(0);
-//            motorExtend.setTargetPosition(motorExtend.getCurrentPosition() + 750);
-//            motorExtend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            motorRotate.setTargetPosition(motorRotate.getCurrentPosition() + 550);
-//        }
-//        while (motorRotate.isBusy()) { }
-//        motorRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        grasp.setPosition(0);
-////        MotorFrontY.setPower(0.1);
-////        MotorBackY.setPower(0.1);
-//
-////        MotorFrontY.setTargetPosition((int)(MotorFrontY.getCurrentPosition() + 1250/2));
-////        MotorBackY.setTargetPosition((int)(MotorBackY.getCurrentPosition() + 1250/2));
-//
-////        MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-////        MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        while (opModeIsActive() && MotorFrontY.isBusy() && MotorBackY.isBusy()) { }
-//        while (motorExtend.isBusy()) { }
-//        grasp.setPosition(1);
-//
-//        angle.setPosition(0.65);
-//        sleep(250);
-//        grasp.setPosition(1);
-//        sleep(250);
-//        grasp.setPosition(1);
-//        motorRotate.setPower(0.5);
-//        motorRotate.setTargetPosition(motorRotate.getCurrentPosition() - 800);
-//        motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        while (motorRotate.isBusy()) { }
-//        MotorBackY.setPower(0.1);
-//        MotorFrontY.setPower(0.1);
-//        MotorBackY.setTargetPosition(MotorBackY.getCurrentPosition() - 2240/4);
-//        MotorFrontY.setTargetPosition(MotorFrontY.getCurrentPosition() - 2240/4);
-//        MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        while (opModeIsActive() && MotorFrontY.isBusy() && MotorBackY.isBusy()) { }
-//        motorRotate.setPower(0.5);
-//        motorRotate.setTargetPosition(motorRotate.getCurrentPosition() -50);
-//        motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        while (motorRotate.isBusy()) {
-//        }
-//        i++;
-//    }
-//
-//    void collectSky2()
-//    {
-//        motorRotate.setPower(0.5);
-//        motorRotate.setTargetPosition(motorRotate.getCurrentPosition() +300);
-//        motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        grasp.setPosition(0);
-//        moveY(16, 0.2);
-//        grasp.setPosition(1);
-//        sleep(500);
-//        moveY(-17, 0.2);
-//        grasp.setPosition(1);
-//        moveX(79, 0.2);
-//        grasp.setPosition(0);
-//        moveX(-12.5, 1);
-//        moveY(-10, 0.5);
-//    }
+    void collectBlock2()
+    {
+        moveY(-2, 0.3);
 
+        angle1.setPosition(0.65);
+        angle2.setPosition(0.35);
+
+        moveY(6,0.2);
+
+        sleep(100);
+        agaga("grasp");
+        sleep(100);
+
+        armRotate(-100, 1);
+        moveY(-12, 0.5);
+    }
 }

@@ -37,7 +37,8 @@ public class BlueSkyStoneGrabber extends LinearOpMode {
 
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() throws InterruptedException
+    {
         initializeMotors();
         initSensors();
 
@@ -50,12 +51,13 @@ public class BlueSkyStoneGrabber extends LinearOpMode {
         collectBlock();
 
         moveX(-54, 0.2);
+
         agaga("release");
         agaga("release");
 
         moveX(79, 0.2);
 
-        collectBlock();
+        collectBlock2();
 
 
     }
@@ -138,7 +140,7 @@ public class BlueSkyStoneGrabber extends LinearOpMode {
         MotorBackY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        char blockPos = ' ';
+        char blockPos = ' ';                //0.713
 
         double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
         final int DESIRED_D = 60;
@@ -182,9 +184,16 @@ public class BlueSkyStoneGrabber extends LinearOpMode {
     }
 
     void agaga(String position) {
-        if (position.equals("release")) {
+        if (position.equals("release"))
+        {
+            angle1.setPosition(1);
+            angle2.setPosition(0);
+
             grasp1.setPosition(1);
             grasp2.setPosition(0);
+
+            angle1.setPosition(0);
+            angle1.setPosition(1);
         }
 
         if (position.equals("grasp")) {
@@ -222,7 +231,8 @@ public class BlueSkyStoneGrabber extends LinearOpMode {
         MotorFrontX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         MotorBackX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (opModeIsActive() && MotorBackX.isBusy() && MotorFrontX.isBusy()) {
+        while (opModeIsActive() && MotorBackX.isBusy() && MotorFrontX.isBusy())
+        {
             telemetry.addData("Move X method error = ", MotorFrontX.getTargetPosition() - (MotorFrontX.getCurrentPosition() + counts));
             telemetry.update();
         }
@@ -259,6 +269,7 @@ public class BlueSkyStoneGrabber extends LinearOpMode {
 
         while (opModeIsActive() && motorExtend.isBusy()) {
             telemetry.addData("extension error = ", motorExtend.getTargetPosition() - (motorExtend.getCurrentPosition() + counts));
+            telemetry.update();
         }
     }
 
@@ -274,14 +285,40 @@ public class BlueSkyStoneGrabber extends LinearOpMode {
 
         while (opModeIsActive() && motorRotate.isBusy()) {
             telemetry.addData(" rotation error = ", motorRotate.getTargetPosition() - (motorRotate.getCurrentPosition() + counts));
+            telemetry.update();
         }
     }
 
-    void collectBlock() {
-        moveY(-1, 0.3);
-        moveX(0, 0);
-        armRotate(250, 0.75);
-        armExtend(500, 1);
+    void collectBlock()
+    {
+        telemetry.addData("inside collect block method", null);
+        telemetry.update();
+        moveY(-6, 0.3);
+
+        armRotate(200,1);
+        armExtend(900,1);
+        armRotate(440, 1);
+
+
+        sleep(100);
+        agaga("grasp");
+        sleep(100);
+
+        armRotate(-200, 1);
+        moveY(-12, 0.3);
+        telemetry.addData("outside collectblock method", null);
+        telemetry.update();
+
+    }
+
+    void collectBlock2()
+    {
+        moveY(-2, 0.3);
+
+        angle1.setPosition(0.35);
+        angle2.setPosition(0.65);
+
+        moveY(6,0.2);
 
         sleep(100);
         agaga("grasp");

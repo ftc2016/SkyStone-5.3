@@ -21,6 +21,7 @@ public class TeleOpDrive extends OpMode
 
     double multiplier = 1, speedK = 1;
     boolean turtle = false, sloth = false;
+    double foundPos = 0;
 
 
 
@@ -111,17 +112,16 @@ public class TeleOpDrive extends OpMode
             grasp2.setPosition(1);
         }
 
-        if(gamepad1.dpad_up)
-        {
-            foundation1.setPosition(0);
-            foundation2.setPosition(0);
-        }
+        if(gamepad1.dpad_up) { foundPos += 0.05; }
 
-        if(gamepad1.dpad_down)
-        {
-            foundation1.setPosition(1);
-            foundation2.setPosition(1);
-        }
+        if(gamepad1.dpad_down) {  foundPos -= 0.05; }
+
+        foundation1.setPosition(foundPos);
+        foundation2.setPosition(foundPos);
+
+        telemetry.addData("Foundation Data", foundPos);
+        telemetry.addData("Y power", powerYWheels*multiplier);
+        telemetry.update();
 
         angle1.setPosition(-0.00027*(armRotate.getCurrentPosition())+ ANGLE);
         angle2.setPosition(1-(-0.00027*(armRotate.getCurrentPosition())+ ANGLE));
