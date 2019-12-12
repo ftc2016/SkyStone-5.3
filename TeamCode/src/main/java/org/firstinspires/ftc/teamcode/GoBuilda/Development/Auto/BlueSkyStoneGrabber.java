@@ -33,7 +33,7 @@ public class BlueSkyStoneGrabber extends LinearOpMode {
 
     //initializing motors
     private DcMotor MotorFrontY, MotorFrontX, MotorBackX, MotorBackY, motorRotate, motorExtend;
-    Servo grasp1, grasp2, angle1, angle2, foundation1, foundation2;
+    Servo grasp1, grasp2, angle1, angle2, block1, foundation2;
 
 
     @Override
@@ -102,7 +102,7 @@ public class BlueSkyStoneGrabber extends LinearOpMode {
 
         grasp1 = hardwareMap.servo.get("grasp1");
         grasp2 = hardwareMap.servo.get("grasp2");
-        foundation1 = hardwareMap.servo.get("foundation1");
+        block1 = hardwareMap.servo.get("block1");
         foundation2 = hardwareMap.servo.get("foundation2");
         angle1 = hardwareMap.servo.get("angle1");
         angle2 = hardwareMap.servo.get("angle2");

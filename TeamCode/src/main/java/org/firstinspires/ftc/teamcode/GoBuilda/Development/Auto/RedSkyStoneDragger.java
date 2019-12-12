@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode.GoBuilda.Development.Auto;
 
+import android.util.Log;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -10,19 +11,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-import static java.lang.Math.abs;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-
-@Autonomous(name="Red SkyStoneGrabbber", group = "Red")
-public class RedSkyStoneGrabber extends LinearOpMode
+@Autonomous(name="Red SkyStoneDragger", group = "Red")
+public class RedSkyStoneDragger extends LinearOpMode
 {
 
     //initalizing sensors
@@ -45,29 +38,29 @@ public class RedSkyStoneGrabber extends LinearOpMode
 
         waitForStart();
 
-        moveX(6, 0.2);
         sleep(250);
         detectBlock();
 
-        collectBlock();
+        collectBlock("down");
+        sleep(250);
 
+        moveY(-11, 0.2);
         moveX(-54, 0.2);
 
-        agaga("release");
-        agaga("release");
+       collectBlock("up");
 
         moveX(79, 0.2);
+        moveY(11,0.2);
 
-        collectBlock2();
+        collectBlock("down");
+        moveY(-11, 0.2);
+        sleep(250);
 
-        moveX(-70, 0.5);
+        moveX(-80, 0.2);
 
-        agaga("release");
-        agaga("release");
+        collectBlock("up");
 
         moveX(16, 0.2);
-
-
     }
 
 
@@ -151,7 +144,7 @@ public class RedSkyStoneGrabber extends LinearOpMode
         char blockPos = ' ';                //0.713
 
         double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
-        final int DESIRED_D = 40;
+        final int DESIRED_D = 50;
 
         while (current >= DESIRED_D) {
             current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
@@ -159,8 +152,8 @@ public class RedSkyStoneGrabber extends LinearOpMode
             telemetry.addData("Moving to set Distance", null);
             telemetry.update();
 
-            MotorFrontY.setPower(0.2);
-            MotorBackY.setPower(0.2);
+            MotorFrontY.setPower(0.3);
+            MotorBackY.setPower(0.3);
         }
 
         MotorFrontY.setPower(-0.05);
@@ -169,24 +162,26 @@ public class RedSkyStoneGrabber extends LinearOpMode
         double leftNormalizedColors = (leftColor.green() + leftColor.red() + leftColor.blue()) / Math.pow(leftDistance.getDistance(DistanceUnit.MM), 2);
         double rightNormalizedColors = (rightColor.green() + rightColor.red() + rightColor.blue()) / Math.pow(rightDistance.getDistance(DistanceUnit.MM), 2);
 
+        Log.i("LeftNormalizationValue", ""+leftNormalizedColors);
+        Log.i("RightNormalizationValue", ""+rightNormalizedColors);
+
         sleep(500);
 
         if (rightNormalizedColors < 0.5 && leftNormalizedColors > 0.5) {
-            moveX(-4, 0.2);
+            moveX(16, 0.2);
             telemetry.addData("right", null);
         }
 
-        if (leftNormalizedColors < 0.5 && rightNormalizedColors > 0.5) {
-            moveX(2, 0.2);
+        if (leftNormalizedColors < 0.5 && rightNormalizedColors < 0.5) {
+            moveX(-14, 0.2);
             telemetry.addData("center", null);
         }
 
-        if (leftNormalizedColors < 0.5 && rightNormalizedColors < 0.5) {
-            moveX(10, 0.2);
+        if (leftNormalizedColors < 0.5 && rightNormalizedColors > 0.5) {
+            moveX(-10, 0.2);
             telemetry.addData("left", null);
         }
         telemetry.update();
-        sleep(1000);
 
         MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -303,55 +298,12 @@ public class RedSkyStoneGrabber extends LinearOpMode
         }
     }
 
-    void collectBlock()
+    void collectBlock(String pos)
     {
-        telemetry.addData("inside collect block method", null);
-        telemetry.update();
-        moveY(-6, 0.3);
+        if(pos.equalsIgnoreCase("down"))
+            block1.setPosition(0.6);
 
-        armRotate(200,1);
-        armExtend(800,1);
-        armRotate(350, 1);
-
-//        angle1.setPosition();
-//        angle2.setPosition();
-
-
-        sleep(100);
-        agaga("grasp");
-        sleep(100);
-
-        armRotate(-150, 1);
-        moveY(-13, 0.3);
-        telemetry.addData("outside collectblock method", null);
-        telemetry.update();
-
-        sleep(250);
-
-    }
-
-    void collectBlock2()
-    {
-        moveY(-2, 0.3);
-
-        angle1.setPosition(0.65);
-        angle2.setPosition(0.35);
-
-        armRotate(100, 1);
-
-        moveY(12,0.2);
-
-        angle1.setPosition(0.55);
-        angle2.setPosition(0.45);
-
-        armExtend(-100, 1);
-
-        sleep(100);
-        agaga("grasp");
-        sleep(100);
-
-        armRotate(-100, 1);
-        moveY(-12, 0.5);
-        sleep(200);
+        if(pos.equalsIgnoreCase("up"))
+            block1.setPosition(0);
     }
 }

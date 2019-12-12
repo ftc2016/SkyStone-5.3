@@ -69,55 +69,41 @@ public class SensorTest extends LinearOpMode
 
     }
 
-    public void detectBlock()
-    {
+    public void detectBlock() {
 
         MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //moveX(-1.0, 0.25);
 
-        double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2;
-        final int DESIRED_D = 60;
+        double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
+        final int DESIRED_D = 50;
 
-        while(current >= DESIRED_D)
+        while (opModeIsActive())
         {
-            current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2;
 
-            MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            double leftNormalizedColors = (leftColor.green() + leftColor.red() + leftColor.blue()) / Math.pow(leftDistance.getDistance(DistanceUnit.MM), 2);
+            double rightNormalizedColors = (rightColor.green() + rightColor.red() + rightColor.blue()) / Math.pow(rightDistance.getDistance(DistanceUnit.MM), 2);
 
-            MotorFrontY.setPower(0.1);
-            MotorBackY.setPower(0.1);
+            // Yellow is greater than 0.5 and black is less than 0.5
+            //YYB
+            if (leftNormalizedColors > 0.5 && rightNormalizedColors < 0.5) {
+                telemetry.addData("right", null);
+                telemetry.update();
+            }
+
+            //YBY
+            if (leftNormalizedColors < 0.5 && rightNormalizedColors > 0.5) {
+                telemetry.addData("center", null);
+                telemetry.update();
+            }
+
+            //BYY
+            if (leftNormalizedColors < 0.5 && rightNormalizedColors < 0.5) {
+                telemetry.addData("left", null);
+                telemetry.update();
+            }
         }
-
-        MotorFrontY.setPower(0);
-        MotorBackY.setPower(0);
-
-        double leftNormalizedColors = (leftColor.green()+leftColor.red()+leftColor.blue())/Math.pow(leftDistance.getDistance(DistanceUnit.MM),2);
-        double rightNormalizedColors = (rightColor.green()+rightColor.red()+rightColor.blue())/Math.pow(rightDistance.getDistance(DistanceUnit.MM),2);
-
-        if(leftNormalizedColors<0.5&&rightNormalizedColors<0.5)
-        {
-            telemetry.addData("LEFT", null);
-            telemetry.update();
-        }
-
-        if (leftNormalizedColors<0.5&&rightNormalizedColors>0.5)
-        {
-            telemetry.addData("CENTER", null);
-            telemetry.update();
-        }
-
-        if(rightNormalizedColors<0.5&&leftNormalizedColors>0.5)
-        {
-            telemetry.addData("RIGHT", null);
-            telemetry.update();
-        }
-
-
-        MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     void moveY(double inches, double power)

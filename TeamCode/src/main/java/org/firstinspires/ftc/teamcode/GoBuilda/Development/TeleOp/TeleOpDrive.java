@@ -34,9 +34,9 @@ public class TeleOpDrive extends OpMode
 
     private ColorSensor colorLeft, colorRight;
 
-    Servo grasp1, grasp2, angle1, angle2, foundation1, foundation2;
+    Servo grasp1, grasp2, angle1, angle2, block1, foundation2;
 
-    double position = 0, ANGLE = 0.531992018;
+    double position = 0, ANGLE = 0.531992018, blockPos = 0;
 
     @Override
     public void loop()
@@ -112,11 +112,17 @@ public class TeleOpDrive extends OpMode
             grasp2.setPosition(1);
         }
 
+        if(gamepad1.dpad_left)
+            blockPos += 0.05;
+        if(gamepad1.dpad_right)
+            blockPos -= 0.05;
+
+        block1.setPosition(blockPos);
+
         if(gamepad1.dpad_up) { foundPos += 0.05; }
 
         if(gamepad1.dpad_down) {  foundPos -= 0.05; }
 
-        foundation1.setPosition(foundPos);
         foundation2.setPosition(foundPos);
 
         telemetry.addData("Foundation Data", foundPos);
@@ -126,7 +132,7 @@ public class TeleOpDrive extends OpMode
         angle1.setPosition(-0.00027*(armRotate.getCurrentPosition())+ ANGLE);
         angle2.setPosition(1-(-0.00027*(armRotate.getCurrentPosition())+ ANGLE));
 
-        telemetry.addData("Value", -0.00027*(armRotate.getCurrentPosition())+ ANGLE);
+        telemetry.addData("Value", blockPos );
 
         armPosCurrent = armRotate.getCurrentPosition();
 
@@ -178,7 +184,7 @@ public class TeleOpDrive extends OpMode
 
         grasp1 = hardwareMap.servo.get("grasp1");
         grasp2 = hardwareMap.servo.get("grasp2");
-        foundation1 = hardwareMap.servo.get("foundation1");
+        block1 = hardwareMap.servo.get("block1");
         foundation2 = hardwareMap.servo.get("foundation2");
         angle1 = hardwareMap.servo.get("angle1");
         angle2 = hardwareMap.servo.get("angle2");

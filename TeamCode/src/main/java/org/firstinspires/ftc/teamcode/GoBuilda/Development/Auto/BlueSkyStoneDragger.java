@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.GoBuilda.Development.Auto;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -10,20 +9,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-import static java.lang.Math.abs;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-
-@Autonomous(name="Red SkyStoneGrabbber", group = "Red")
-public class RedSkyStoneGrabber extends LinearOpMode
-{
+@Autonomous(name="Blue SkyStoneDragger", group = "Blue")
+public class BlueSkyStoneDragger extends LinearOpMode {
 
     //initalizing sensors
     private ColorSensor leftColor, rightColor;
@@ -60,13 +50,6 @@ public class RedSkyStoneGrabber extends LinearOpMode
 
         collectBlock2();
 
-        moveX(-70, 0.5);
-
-        agaga("release");
-        agaga("release");
-
-        moveX(16, 0.2);
-
 
     }
 
@@ -79,8 +62,8 @@ public class RedSkyStoneGrabber extends LinearOpMode
         motorExtend = hardwareMap.dcMotor.get("extend");
         motorRotate = hardwareMap.dcMotor.get("rotate");
 
-        MotorFrontX.setDirection(DcMotorSimple.Direction.REVERSE);
-        MotorBackX.setDirection(DcMotorSimple.Direction.FORWARD);
+        MotorFrontX.setDirection(DcMotorSimple.Direction.FORWARD);
+        MotorBackX.setDirection(DcMotorSimple.Direction.REVERSE);
         MotorFrontY.setDirection(DcMotorSimple.Direction.FORWARD);
         MotorBackY.setDirection(DcMotorSimple.Direction.REVERSE);
         motorExtend.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -151,7 +134,7 @@ public class RedSkyStoneGrabber extends LinearOpMode
         char blockPos = ' ';                //0.713
 
         double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
-        final int DESIRED_D = 40;
+        final int DESIRED_D = 60;
 
         while (current >= DESIRED_D) {
             current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
@@ -159,8 +142,8 @@ public class RedSkyStoneGrabber extends LinearOpMode
             telemetry.addData("Moving to set Distance", null);
             telemetry.update();
 
-            MotorFrontY.setPower(0.2);
-            MotorBackY.setPower(0.2);
+            MotorFrontY.setPower(0.3);
+            MotorBackY.setPower(0.3);
         }
 
         MotorFrontY.setPower(-0.05);
@@ -172,21 +155,20 @@ public class RedSkyStoneGrabber extends LinearOpMode
         sleep(500);
 
         if (rightNormalizedColors < 0.5 && leftNormalizedColors > 0.5) {
-            moveX(-4, 0.2);
+            moveX(4, 0.2);
             telemetry.addData("right", null);
         }
 
         if (leftNormalizedColors < 0.5 && rightNormalizedColors > 0.5) {
-            moveX(2, 0.2);
+            moveX(-4, 0.2);
             telemetry.addData("center", null);
         }
 
         if (leftNormalizedColors < 0.5 && rightNormalizedColors < 0.5) {
-            moveX(10, 0.2);
+            moveX(-12, 0.2);
             telemetry.addData("left", null);
         }
         telemetry.update();
-        sleep(1000);
 
         MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -279,8 +261,6 @@ public class RedSkyStoneGrabber extends LinearOpMode
         while (opModeIsActive() && motorExtend.isBusy()) {
             telemetry.addData("extension error = ", motorExtend.getTargetPosition() - (motorExtend.getCurrentPosition() + counts));
             telemetry.update();
-            if((motorExtend.getCurrentPosition()> motorExtend.getTargetPosition()-20) && (motorExtend.getCurrentPosition()<motorExtend.getTargetPosition()+20))
-                break;
         }
     }
 
@@ -294,12 +274,9 @@ public class RedSkyStoneGrabber extends LinearOpMode
 
         motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (opModeIsActive() && motorRotate.isBusy())
-        {
+        while (opModeIsActive() && motorRotate.isBusy()) {
             telemetry.addData(" rotation error = ", motorRotate.getTargetPosition() - (motorRotate.getCurrentPosition() + counts));
             telemetry.update();
-            if((motorRotate.getCurrentPosition()> motorRotate.getTargetPosition()-20) && (motorRotate.getCurrentPosition()<motorRotate.getTargetPosition()+20))
-                break;
         }
     }
 
@@ -310,23 +287,18 @@ public class RedSkyStoneGrabber extends LinearOpMode
         moveY(-6, 0.3);
 
         armRotate(200,1);
-        armExtend(800,1);
-        armRotate(350, 1);
-
-//        angle1.setPosition();
-//        angle2.setPosition();
+        armExtend(900,1);
+        armRotate(440, 1);
 
 
         sleep(100);
         agaga("grasp");
         sleep(100);
 
-        armRotate(-150, 1);
-        moveY(-13, 0.3);
+        armRotate(-200, 1);
+        moveY(-12, 0.3);
         telemetry.addData("outside collectblock method", null);
         telemetry.update();
-
-        sleep(250);
 
     }
 
@@ -334,24 +306,16 @@ public class RedSkyStoneGrabber extends LinearOpMode
     {
         moveY(-2, 0.3);
 
-        angle1.setPosition(0.65);
-        angle2.setPosition(0.35);
+        angle1.setPosition(0.35);
+        angle2.setPosition(0.65);
 
-        armRotate(100, 1);
-
-        moveY(12,0.2);
-
-        angle1.setPosition(0.55);
-        angle2.setPosition(0.45);
-
-        armExtend(-100, 1);
+        moveY(6,0.2);
 
         sleep(100);
         agaga("grasp");
         sleep(100);
 
-        armRotate(-100, 1);
+        armRotate(-200, 1);
         moveY(-12, 0.5);
-        sleep(200);
     }
 }
