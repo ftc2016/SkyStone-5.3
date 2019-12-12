@@ -37,6 +37,8 @@ public class SensorTest extends LinearOpMode
         detectBlock();
     }
 
+    //To prove that I changed this file
+
     public void initialize()
     {
         leftColor = hardwareMap.get(ColorSensor.class, "left");
@@ -86,20 +88,20 @@ public class SensorTest extends LinearOpMode
             double rightNormalizedColors = (rightColor.green() + rightColor.red() + rightColor.blue()) / Math.pow(rightDistance.getDistance(DistanceUnit.MM), 2);
 
             // Yellow is greater than 0.5 and black is less than 0.5
-            //YYB
+            //Y[YB]
             if (leftNormalizedColors > 0.5 && rightNormalizedColors < 0.5) {
                 telemetry.addData("right", null);
                 telemetry.update();
             }
 
-            //YBY
+            //Y[BY]
             if (leftNormalizedColors < 0.5 && rightNormalizedColors > 0.5) {
                 telemetry.addData("center", null);
                 telemetry.update();
             }
 
-            //BYY
-            if (leftNormalizedColors < 0.5 && rightNormalizedColors < 0.5) {
+            //B[YY]
+            if (leftNormalizedColors > 0.5 && rightNormalizedColors > 0.5) {
                 telemetry.addData("left", null);
                 telemetry.update();
             }
