@@ -102,8 +102,8 @@ public class BlueSkyStoneGrabber extends LinearOpMode {
 
         grasp1 = hardwareMap.servo.get("grasp1");
         grasp2 = hardwareMap.servo.get("grasp2");
-        block1 = hardwareMap.servo.get("block1");
-        foundation2 = hardwareMap.servo.get("foundation2");
+        block1 = hardwareMap.servo.get("rightCollection");
+        foundation2 = hardwareMap.servo.get("foundation");
         angle1 = hardwareMap.servo.get("angle1");
         angle2 = hardwareMap.servo.get("angle2");
 

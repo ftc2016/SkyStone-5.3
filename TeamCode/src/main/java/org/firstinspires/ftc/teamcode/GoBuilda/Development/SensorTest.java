@@ -79,13 +79,17 @@ public class SensorTest extends LinearOpMode
         //moveX(-1.0, 0.25);
 
         double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
-        final int DESIRED_D = 50;
+        final int DESIRED_D = 65;
 
         while (opModeIsActive())
         {
 
             double leftNormalizedColors = (leftColor.green() + leftColor.red() + leftColor.blue()) / Math.pow(leftDistance.getDistance(DistanceUnit.MM), 2);
             double rightNormalizedColors = (rightColor.green() + rightColor.red() + rightColor.blue()) / Math.pow(rightDistance.getDistance(DistanceUnit.MM), 2);
+
+            telemetry.addData("Left ", leftNormalizedColors);
+            telemetry.addData("Right", rightNormalizedColors);
+            telemetry.update();
 
             // Yellow is greater than 0.5 and black is less than 0.5
             //Y[YB]

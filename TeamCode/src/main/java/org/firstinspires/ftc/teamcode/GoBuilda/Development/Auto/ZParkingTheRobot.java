@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.GoBuilda.Development.Auto;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -8,13 +9,26 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 @Autonomous(name = "Park", group = "Both")
 public class ZParkingTheRobot extends LinearOpMode
 {
+    //initalizing sensors
+    private ColorSensor leftColor, rightColor;
+    private DistanceSensor leftDistance, rightDistance;
+    //gyro init
+    BNO055IMU imu;
+    Orientation angles;
+    char blockPos = ' ';
+
+    //initializing motors
     private DcMotor MotorFrontY, MotorFrontX, MotorBackX, MotorBackY, motorRotate, motorExtend;
-    Servo grasp, angle, foundation1, foundation2;
+    Servo grasp1, grasp2, angle1, angle2, rightCollection, leftCollection, foundation;
+
+
 
     @Override
     public void runOpMode() throws InterruptedException
@@ -26,11 +40,73 @@ public class ZParkingTheRobot extends LinearOpMode
         sleep(25000);
 
         armRotate(300, 1);
-        armExtend(150, 1);
-        moveY(20, 1);
+        armExtend(500, 1);
+        moveY(48, 1);
 
     }
 
+    private void initializeMotors() {
+        MotorFrontX = hardwareMap.dcMotor.get("fx");
+        MotorBackX = hardwareMap.dcMotor.get("bx");
+        MotorFrontY = hardwareMap.dcMotor.get("fy");
+        MotorBackY = hardwareMap.dcMotor.get("by");
+        motorExtend = hardwareMap.dcMotor.get("extend");
+        motorRotate = hardwareMap.dcMotor.get("rotate");
+
+        MotorFrontX.setDirection(DcMotorSimple.Direction.REVERSE);
+        MotorBackX.setDirection(DcMotorSimple.Direction.FORWARD);
+        MotorFrontY.setDirection(DcMotorSimple.Direction.FORWARD);
+        MotorBackY.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorExtend.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorRotate.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+        MotorFrontX.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        MotorFrontX.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MotorBackX.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        MotorBackX.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MotorFrontY.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MotorBackY.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        motorExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorExtend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        motorRotate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+        MotorFrontX.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorBackX.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        grasp1 = hardwareMap.servo.get("grasp1");
+        grasp2 = hardwareMap.servo.get("grasp2");
+        rightCollection = hardwareMap.servo.get("rightCollection");
+        leftCollection = hardwareMap.servo.get("leftCollection");
+        foundation = hardwareMap.servo.get("foundation");
+        angle1 = hardwareMap.servo.get("angle1");
+        angle2 = hardwareMap.servo.get("angle2");
+
+//        grasp1.setPosition(1);
+//        grasp2.setPosition(0);
+
+    }
+
+    private void initSensors()
+    {
+
+        leftColor = hardwareMap.get(ColorSensor.class, "left");
+        rightColor = hardwareMap.get(ColorSensor.class, "right");
+
+        leftColor.enableLed(true);
+        rightColor.enableLed(true);
+
+        leftDistance = hardwareMap.get(DistanceSensor.class, "left");
+        rightDistance = hardwareMap.get(DistanceSensor.class, "right");
+    }
 
     void moveY(double inches, double power)
     {
@@ -62,49 +138,6 @@ public class ZParkingTheRobot extends LinearOpMode
         return (int)(COUNTS_PER_REVOLUTION*inches);
     }
 
-    private void initializeMotors()
-    {
-        MotorFrontX = hardwareMap.dcMotor.get("fx");
-        MotorBackX = hardwareMap.dcMotor.get("bx");
-        MotorFrontY = hardwareMap.dcMotor.get("fy");
-        MotorBackY = hardwareMap.dcMotor.get("by");
-
-        MotorFrontX.setDirection(DcMotor.Direction.REVERSE);
-        MotorBackX.setDirection(DcMotor.Direction.FORWARD);
-        MotorFrontY.setDirection(DcMotor.Direction.FORWARD);
-        MotorBackY.setDirection(DcMotor.Direction.REVERSE);
-
-        MotorFrontX.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        MotorBackX.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        MotorFrontY.setZeroPowerBehavior(BRAKE);
-        MotorBackY.setZeroPowerBehavior(BRAKE);
-        MotorBackX.setZeroPowerBehavior(BRAKE);
-        MotorFrontX.setZeroPowerBehavior(BRAKE);
-
-
-        motorExtend = hardwareMap.dcMotor.get("extend");
-        motorExtend.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorExtend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        motorRotate = hardwareMap.dcMotor.get("rotate");
-        motorRotate.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorRotate.setZeroPowerBehavior(BRAKE);
-
-        grasp = hardwareMap.servo.get("grasp");
-        foundation1 = hardwareMap.servo.get("foundation1");
-        foundation2 = hardwareMap.servo.get("foundation2");
-
-        angle = hardwareMap.servo.get("angle");
-
-        grasp.setPosition(1);
-        angle.setPosition(0.65);
-        foundation1.setPosition(0);
-        foundation2.setPosition(0);
-    }
 
     void armExtend(int counts, double power)
     {

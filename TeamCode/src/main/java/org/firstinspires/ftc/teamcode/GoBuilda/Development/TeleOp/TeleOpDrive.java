@@ -34,9 +34,9 @@ public class TeleOpDrive extends OpMode
 
     private ColorSensor colorLeft, colorRight;
 
-    Servo grasp1, grasp2, angle1, angle2, block1, foundation2;
+    Servo grasp1, grasp2, angle1, angle2, rightCollection, leftCollection, foundation;
 
-    double position = 0, ANGLE = 0.531992018, blockPos = 0;
+    double position = 0, ANGLE = 0.531992018, blockPos = 1;
 
     @Override
     public void loop()
@@ -117,13 +117,14 @@ public class TeleOpDrive extends OpMode
         if(gamepad1.dpad_right)
             blockPos -= 0.05;
 
-        block1.setPosition(blockPos);
+        leftCollection.setPosition(blockPos);
+        rightCollection.setPosition(1-blockPos);
 
         if(gamepad1.dpad_up) { foundPos += 0.05; }
 
         if(gamepad1.dpad_down) {  foundPos -= 0.05; }
 
-        foundation2.setPosition(foundPos);
+        foundation.setPosition(foundPos);
 
         telemetry.addData("Foundation Data", foundPos);
         telemetry.addData("Y power", powerYWheels*multiplier);
@@ -184,8 +185,9 @@ public class TeleOpDrive extends OpMode
 
         grasp1 = hardwareMap.servo.get("grasp1");
         grasp2 = hardwareMap.servo.get("grasp2");
-        block1 = hardwareMap.servo.get("block1");
-        foundation2 = hardwareMap.servo.get("foundation2");
+        rightCollection = hardwareMap.servo.get("rightCollection");
+        leftCollection = hardwareMap.servo.get("leftCollection");
+        foundation = hardwareMap.servo.get("foundation");
         angle1 = hardwareMap.servo.get("angle1");
         angle2 = hardwareMap.servo.get("angle2");
 

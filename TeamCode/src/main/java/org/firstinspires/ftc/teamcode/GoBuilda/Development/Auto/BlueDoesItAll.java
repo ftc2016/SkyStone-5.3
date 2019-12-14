@@ -72,7 +72,7 @@ public class BlueDoesItAll extends LinearOpMode
 
         grasp = hardwareMap.servo.get("grasp");
         foundation1 = hardwareMap.servo.get("foundation1");
-        foundation2 = hardwareMap.servo.get("foundation2");
+        foundation2 = hardwareMap.servo.get("foundation");
         angle = hardwareMap.servo.get("angle");
 
         grasp.setPosition(1);

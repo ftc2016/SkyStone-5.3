@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.GoBuilda.Development.Auto;
 
+import android.util.Log;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -21,37 +23,50 @@ public class BlueSkyStoneDragger extends LinearOpMode {
     //gyro init
     BNO055IMU imu;
     Orientation angles;
+    char blockPos = ' ';
 
     //initializing motors
     private DcMotor MotorFrontY, MotorFrontX, MotorBackX, MotorBackY, motorRotate, motorExtend;
-    Servo grasp1, grasp2, angle1, angle2, block1, foundation2;
+    Servo grasp1, grasp2, angle1, angle2, rightCollection, leftCollection, foundation;
+
 
 
     @Override
     public void runOpMode() throws InterruptedException
     {
-        initializeMotors();
-        initSensors();
+            initializeMotors();
+            initSensors();
 
-        waitForStart();
+            waitForStart();
 
-        moveX(6, 0.2);
-        sleep(250);
-        detectBlock();
+            detectBlock();
 
-        collectBlock();
+            moveY(1,0.2);
 
-        moveX(-54, 0.2);
+            collectBlock("left","down");
+            Thread.sleep(1500);
 
-        agaga("release");
-        agaga("release");
+            moveY(-13, 0.2);
+            moveX(-66, 0.2);
 
-        moveX(79, 0.2);
+            collectBlock("left","up");
+            moveX(74, 0.2);
 
-        collectBlock2();
+            moveSetDistance();
 
+            collectBlock("right","down");
+            Thread.sleep(2000);
 
+            moveY(-15, 0.2);
+            Thread.sleep(500);
+            moveX(-78, 0.5);
+
+            collectBlock("right", "up");
+            Thread.sleep(500);
+
+            moveX(15, 0.2);
     }
+
 
 
     private void initializeMotors() {
@@ -70,20 +85,20 @@ public class BlueSkyStoneDragger extends LinearOpMode {
         motorRotate.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
-        MotorFrontX.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         MotorFrontX.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        MotorBackX.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MotorFrontX.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         MotorBackX.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MotorBackX.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         MotorFrontY.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         MotorBackY.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        motorExtend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorExtend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        motorRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorRotate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         MotorFrontX.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -93,17 +108,20 @@ public class BlueSkyStoneDragger extends LinearOpMode {
 
         grasp1 = hardwareMap.servo.get("grasp1");
         grasp2 = hardwareMap.servo.get("grasp2");
-        block1 = hardwareMap.servo.get("block1");
-        foundation2 = hardwareMap.servo.get("foundation2");
+        rightCollection = hardwareMap.servo.get("rightCollection");
+        leftCollection = hardwareMap.servo.get("leftCollection");
+        foundation = hardwareMap.servo.get("foundation");
         angle1 = hardwareMap.servo.get("angle1");
         angle2 = hardwareMap.servo.get("angle2");
 
-        grasp1.setPosition(1);
-        grasp2.setPosition(0);
+//        grasp1.setPosition(1);
+//        grasp2.setPosition(0);
 
     }
 
-    private void initSensors() {
+    private void initSensors()
+    {
+
         leftColor = hardwareMap.get(ColorSensor.class, "left");
         rightColor = hardwareMap.get(ColorSensor.class, "right");
 
@@ -123,55 +141,116 @@ public class BlueSkyStoneDragger extends LinearOpMode {
         return (int) (COUNTS_PER_REVOLUTION * inches);
     }
 
-    private void detectBlock()
+    private void moveSetDistance()
     {
+        MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        MotorFrontY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        MotorBackY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
+        final int DESIRED_D = 50;
+
+        while (current >= DESIRED_D)
+        {
+            current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
+
+            telemetry.addData("Moving to set Distance", current);
+            telemetry.update();
+
+            MotorFrontY.setPower(0.3);
+            MotorBackY.setPower(0.3);
+            MotorFrontX.setPower(0);
+            MotorBackX.setPower(0);
+        }
+
+        MotorFrontY.setPower(-0.1);
+        MotorBackY.setPower(-0.1);
+
+        telemetry.addData("MotorFrontX power", MotorFrontX.getPower());
+        telemetry.addData("MotorFrontY power", MotorFrontY.getPower());
+        telemetry.addData("MotorBackX power", MotorBackX.getPower());
+        telemetry.addData("MotorackY power", MotorBackY.getPower());
+        telemetry.update();
+
+        MotorFrontY.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        MotorBackY.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        MotorFrontY.setPower(0);
+        MotorBackY.setPower(0);
+    }
+
+    private void detectBlock() throws InterruptedException {
         MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorFrontY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         MotorBackY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
-        char blockPos = ' ';                //0.713
-
         double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
-        final int DESIRED_D = 60;
+        final int DESIRED_D = 55;
 
-        while (current >= DESIRED_D) {
+        while (current >= DESIRED_D)
+        {
             current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
 
-            telemetry.addData("Moving to set Distance", null);
+            telemetry.addData("Moving to set Distance", current);
             telemetry.update();
 
             MotorFrontY.setPower(0.3);
             MotorBackY.setPower(0.3);
         }
 
-        MotorFrontY.setPower(-0.05);
-        MotorBackY.setPower(-0.05);
+        MotorFrontY.setPower(-0.1);
+        MotorBackY.setPower(-0.1);
+
+        Thread.sleep(2000);
 
         double leftNormalizedColors = (leftColor.green() + leftColor.red() + leftColor.blue()) / Math.pow(leftDistance.getDistance(DistanceUnit.MM), 2);
         double rightNormalizedColors = (rightColor.green() + rightColor.red() + rightColor.blue()) / Math.pow(rightDistance.getDistance(DistanceUnit.MM), 2);
 
-        sleep(500);
+        Log.i("LeftNormalizationValue", ""+leftNormalizedColors);
+        Log.i("RightNormalizationValue", ""+rightNormalizedColors);
 
-        if (rightNormalizedColors < 0.5 && leftNormalizedColors > 0.5) {
-            moveX(4, 0.2);
-            telemetry.addData("right", null);
-        }
+        Thread.sleep(500);
 
-        if (leftNormalizedColors < 0.5 && rightNormalizedColors > 0.5) {
-            moveX(-4, 0.2);
-            telemetry.addData("center", null);
-        }
-
-        if (leftNormalizedColors < 0.5 && rightNormalizedColors < 0.5) {
-            moveX(-12, 0.2);
-            telemetry.addData("left", null);
-        }
+        telemetry.addData("Left ", leftNormalizedColors);
+        telemetry.addData("Right", rightNormalizedColors);
         telemetry.update();
 
-        MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        // Yellow is greater than 0.5 and black is less than 0.5
+        //Y[YB]
+        if (leftNormalizedColors > 0.5 && rightNormalizedColors < 0.5)
+        {
+            blockPos = 'r';
+            moveX(2, 0.2);
+            telemetry.addData("right", null);
+            telemetry.update();
+        }
+
+        //Y[BY]
+        if (leftNormalizedColors < 0.5 && rightNormalizedColors > 0.5)
+        {
+            blockPos = 'c';
+            moveX(9, 0.2);
+            telemetry.addData("center", null);
+            telemetry.update();
+        }
+
+        //B[YY]
+        if (leftNormalizedColors > 0.5 && rightNormalizedColors > 0.5)
+        {
+            blockPos = 'l';
+            moveX(18, 0.2);
+            telemetry.addData("left", null);
+            telemetry.update();
+        }
+
+        Thread.sleep(500);
+        telemetry.update();
+        Thread.sleep(500);
     }
 
     void agaga(String position) {
@@ -187,13 +266,15 @@ public class BlueSkyStoneDragger extends LinearOpMode {
             angle1.setPosition(1);
         }
 
-        if (position.equals("grasp")) {
+        if (position.equals("grasp"))
+        {
             grasp1.setPosition(0);
             grasp2.setPosition(1);
         }
     }
 
-    void moveY(double inches, double power) {
+    void moveY(double inches, double power)
+    {
         int counts = inchesToCounts(inches);
 
         MotorFrontY.setPower(-power);
@@ -210,7 +291,8 @@ public class BlueSkyStoneDragger extends LinearOpMode {
         }
     }
 
-    private void moveX(double inches, double power) {
+    private void moveX(double inches, double power)
+    {
         int counts = inchesToCounts(inches);
 
         MotorFrontX.setPower(power);
@@ -229,7 +311,8 @@ public class BlueSkyStoneDragger extends LinearOpMode {
         }
     }
 
-    void botRotate(int distance, int power) {
+    void botRotate(int distance, double power)
+    {
         MotorBackY.setPower(power);
         MotorBackX.setPower(power);
         MotorFrontX.setPower(power);
@@ -249,7 +332,8 @@ public class BlueSkyStoneDragger extends LinearOpMode {
     }
 
 
-    void armExtend(int counts, double power) {
+    void armExtend(int counts, double power)
+    {
         motorExtend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         motorExtend.setPower(power);
@@ -261,10 +345,13 @@ public class BlueSkyStoneDragger extends LinearOpMode {
         while (opModeIsActive() && motorExtend.isBusy()) {
             telemetry.addData("extension error = ", motorExtend.getTargetPosition() - (motorExtend.getCurrentPosition() + counts));
             telemetry.update();
+            if((motorExtend.getCurrentPosition()> motorExtend.getTargetPosition()-20) && (motorExtend.getCurrentPosition()<motorExtend.getTargetPosition()+20))
+                break;
         }
     }
 
-    void armRotate(int counts, double power) {
+    void armRotate(int counts, double power)
+    {
 
         motorRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -274,48 +361,33 @@ public class BlueSkyStoneDragger extends LinearOpMode {
 
         motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (opModeIsActive() && motorRotate.isBusy()) {
+        while (opModeIsActive() && motorRotate.isBusy())
+        {
             telemetry.addData(" rotation error = ", motorRotate.getTargetPosition() - (motorRotate.getCurrentPosition() + counts));
             telemetry.update();
+            if((motorRotate.getCurrentPosition()> motorRotate.getTargetPosition()-20) && (motorRotate.getCurrentPosition()<motorRotate.getTargetPosition()+20))
+                break;
         }
     }
 
-    void collectBlock()
+    void collectBlock(String servo, String pos) throws InterruptedException
     {
-        telemetry.addData("inside collect block method", null);
-        telemetry.update();
-        moveY(-6, 0.3);
+        if(servo.equalsIgnoreCase("right"))
+        {
+            if (pos.equalsIgnoreCase("down"))
+                rightCollection.setPosition(0.6);
 
-        armRotate(200,1);
-        armExtend(900,1);
-        armRotate(440, 1);
+            if (pos.equalsIgnoreCase("up"))
+                rightCollection.setPosition(0);
+        }
 
+        if(servo.equalsIgnoreCase("left"))
+        {
+            if (pos.equalsIgnoreCase("down"))
+                leftCollection.setPosition(0.35);
 
-        sleep(100);
-        agaga("grasp");
-        sleep(100);
-
-        armRotate(-200, 1);
-        moveY(-12, 0.3);
-        telemetry.addData("outside collectblock method", null);
-        telemetry.update();
-
-    }
-
-    void collectBlock2()
-    {
-        moveY(-2, 0.3);
-
-        angle1.setPosition(0.35);
-        angle2.setPosition(0.65);
-
-        moveY(6,0.2);
-
-        sleep(100);
-        agaga("grasp");
-        sleep(100);
-
-        armRotate(-200, 1);
-        moveY(-12, 0.5);
+            if (pos.equalsIgnoreCase("up"))
+                leftCollection.setPosition(1);
+        }
     }
 }

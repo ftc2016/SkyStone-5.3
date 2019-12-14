@@ -93,7 +93,7 @@ public class BlueFoundationMover extends LinearOpMode
         grasp1 = hardwareMap.servo.get("grasp1");
         grasp2 = hardwareMap.servo.get("grasp2");
         foundation1 = hardwareMap.servo.get("foundation1");
-        foundation2 = hardwareMap.servo.get("foundation2");
+        foundation2 = hardwareMap.servo.get("foundation");
         angle1 = hardwareMap.servo.get("angle1");
         angle2 = hardwareMap.servo.get("angle2");
     }
