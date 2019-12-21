@@ -26,6 +26,48 @@ public class GoBuildaUtil
 
     public GoBuildaUtil() { }
 
+    public void initializeTele(HardwareMap hw)
+    {
+        hardware = hw;
+
+        MotorFrontX = hardware.dcMotor.get("fx");
+        MotorBackX = hardware.dcMotor.get("bx");
+        MotorFrontY = hardware.dcMotor.get("fy");
+        MotorBackY = hardware.dcMotor.get("by");
+        motorExtend = hardware.dcMotor.get("extend");
+        motorRotate = hardware.dcMotor.get("rotate");
+
+        MotorFrontX.setDirection(DcMotorSimple.Direction.REVERSE);
+        MotorBackX.setDirection(DcMotorSimple.Direction.FORWARD);
+        MotorFrontY.setDirection(DcMotorSimple.Direction.FORWARD);
+        MotorBackY.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorExtend.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorRotate.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        MotorFrontX.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        MotorBackX.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        MotorFrontY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        MotorBackY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        motorExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        
+        motorRotate.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+        MotorFrontX.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorBackX.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        grasp1 = hardware.servo.get("grasp1");
+        grasp2 = hardware.servo.get("grasp2");
+        rightCollection = hardware.servo.get("rightCollection");
+        leftCollection = hardware.servo.get("leftCollection");
+        foundation = hardware.servo.get("foundation");
+        angle1 = hardware.servo.get("angle1");
+        angle2 = hardware.servo.get("angle2");
+    }
+
     public void initializeAuto(HardwareMap hw)
     {
         hardware = hw;

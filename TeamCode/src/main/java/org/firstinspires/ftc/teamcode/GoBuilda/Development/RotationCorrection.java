@@ -22,6 +22,6 @@ public class RotationCorrection extends OpMode
     @Override
     public void loop()
     {
-        gyro.rotationCorrection();
+        gyro.rotationCorrection(0);
     }
 }
