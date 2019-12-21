@@ -48,20 +48,20 @@ public class RedSkyStoneDragger extends LinearOpMode
         collectBlock("right","down");
         Thread.sleep(1500);
 
-        moveY(-13, 0.2);
+        moveY(-17, 0.2);
         moveX(-66, 0.2);
 
        collectBlock("right","up");
-       moveX(74, 0.2);
+       moveX(69, 0.2);
 
         moveSetDistance();
 
         collectBlock("left","down");
         Thread.sleep(2000);
 
-        moveY(-15, 0.2);
+        moveY(-20, 0.2);
         Thread.sleep(500);
-        moveX(-78, 0.5);
+        moveX(-75, 0.5);
 
         collectBlock("left", "up");
         Thread.sleep(500);
@@ -70,7 +70,8 @@ public class RedSkyStoneDragger extends LinearOpMode
     }
 
 
-    private void initializeMotors() {
+    private void initializeMotors()
+    {
         MotorFrontX = hardwareMap.dcMotor.get("fx");
         MotorBackX = hardwareMap.dcMotor.get("bx");
         MotorFrontY = hardwareMap.dcMotor.get("fy");
@@ -184,7 +185,8 @@ public class RedSkyStoneDragger extends LinearOpMode
         MotorBackY.setPower(0);
     }
 
-    private void detectBlock() throws InterruptedException {
+    private void detectBlock() throws InterruptedException
+    {
         MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorFrontY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -235,7 +237,7 @@ public class RedSkyStoneDragger extends LinearOpMode
         if (leftNormalizedColors < 0.5 && rightNormalizedColors > 0.5)
         {
             blockPos = 'c';
-            moveX(9, 0.2);
+            moveX(10, 0.2);
             telemetry.addData("center", null);
             telemetry.update();
         }
@@ -244,7 +246,7 @@ public class RedSkyStoneDragger extends LinearOpMode
         if (leftNormalizedColors > 0.5 && rightNormalizedColors > 0.5)
         {
             blockPos = 'l';
-            moveX(18, 0.2);
+            moveX(20, 0.2);
             telemetry.addData("left", null);
             telemetry.update();
         }

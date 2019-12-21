@@ -46,11 +46,11 @@ public class BlueSkyStoneDragger extends LinearOpMode {
             collectBlock("left","down");
             Thread.sleep(1500);
 
-            moveY(-13, 0.2);
+            moveY(-17, 0.2);
             moveX(-66, 0.2);
 
             collectBlock("left","up");
-            moveX(74, 0.2);
+            moveX(72, 0.2);
 
             moveSetDistance();
 
@@ -59,7 +59,7 @@ public class BlueSkyStoneDragger extends LinearOpMode {
 
             moveY(-15, 0.2);
             Thread.sleep(500);
-            moveX(-78, 0.5);
+            moveX(-75, 0.5);
 
             collectBlock("right", "up");
             Thread.sleep(500);
@@ -183,7 +183,8 @@ public class BlueSkyStoneDragger extends LinearOpMode {
         MotorBackY.setPower(0);
     }
 
-    private void detectBlock() throws InterruptedException {
+    private void detectBlock() throws InterruptedException
+    {
         MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorFrontY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -224,27 +225,24 @@ public class BlueSkyStoneDragger extends LinearOpMode {
         //Y[YB]
         if (leftNormalizedColors > 0.5 && rightNormalizedColors < 0.5)
         {
-            blockPos = 'r';
-            moveX(2, 0.2);
-            telemetry.addData("right", null);
+            moveX(10, 0.2);
+            telemetry.addData("center", null);
             telemetry.update();
         }
 
         //Y[BY]
         if (leftNormalizedColors < 0.5 && rightNormalizedColors > 0.5)
         {
-            blockPos = 'c';
-            moveX(9, 0.2);
-            telemetry.addData("center", null);
+            moveX(2, 0.2);
+            telemetry.addData("left", null);
             telemetry.update();
         }
 
         //B[YY]
         if (leftNormalizedColors > 0.5 && rightNormalizedColors > 0.5)
         {
-            blockPos = 'l';
-            moveX(18, 0.2);
-            telemetry.addData("left", null);
+            moveX(20, 0.2);
+            telemetry.addData("right", null);
             telemetry.update();
         }
 

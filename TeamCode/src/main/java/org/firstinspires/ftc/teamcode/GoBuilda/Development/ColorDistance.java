@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode.GoBuilda.Development;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -128,21 +129,17 @@ public class ColorDistance extends LinearOpMode {
             // send the info back to driver station using telemetry function.
             telemetry.addData("Distance (mm)",
                     String.format(Locale.US, "%.02f", sensorDistance.getDistance(DistanceUnit.MM)));
-            telemetry.addData("Alpha", sensorColor.alpha());
-            telemetry.addData("Red  ", sensorColor.red());
-            telemetry.addData("Green", sensorColor.green());
-            telemetry.addData("Blue ", sensorColor.blue());
+            telemetry.addData("Hue", hsvValues[0]);
+            telemetry.addData("Saturation  ", hsvValues[1]);
+            telemetry.addData("Value", hsvValues[2]);
             telemetry.addData("AndyRekow Color Factor:",
-                    (sensorColor.red()+sensorColor.green()+sensorColor.blue())/(sensorDistance.getDistance(DistanceUnit.MM)*sensorDistance.getDistance(DistanceUnit.MM)) );
+                    (sensorColor.red()+sensorColor.green()+sensorColor.blue())/(sensorDistance.getDistance(DistanceUnit.MM)*sensorDistance.getDistance(DistanceUnit.MM)));
+            telemetry.addData("RM color factor",
+                    ((sensorColor.red()*sensorColor.green())/Math.pow(sensorColor.blue(),2)));
 
-            // change the background color to match the color detected by the RGB sensor.
-            // pass a reference to the hue, saturation, and value array as an argument
-            // to the HSVToColor method.
-//            relativeLayout.post(new Runnable() {
-//                public void run() {
-//                    relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
-//                }
-//            });
+            Log.i("Color Values RM", ""+((sensorColor.red()*sensorColor.green())/Math.pow(sensorColor.blue(),2)));
+            Log.i("Color Values AR", ""+(sensorColor.red()+sensorColor.green()+sensorColor.blue())/(sensorDistance.getDistance(DistanceUnit.MM)*sensorDistance.getDistance(DistanceUnit.MM)));
+            Log.i("HSV Values", "" + hsvValues[0] + hsvValues[1] + hsvValues[2]);
 
             telemetry.update();
         }

@@ -36,7 +36,7 @@ public class TeleOpDrive extends OpMode
 
     Servo grasp1, grasp2, angle1, angle2, rightCollection, leftCollection, foundation;
 
-    double position = 0, ANGLE = 0.531992018, blockPos = 1;
+    double position = 0, ANGLE = 0.531992018, blockPos = 1  ;
 
     @Override
     public void loop()
