@@ -252,9 +252,7 @@ public class RedSkyStoneDragger extends LinearOpMode
         robot.MotorBackX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         while (opModeIsActive() && robot.MotorBackX.isBusy() && robot.MotorFrontX.isBusy())
-        {
-            gc.rotationCorrection(0);
-        }
+        { }
     }
 
 

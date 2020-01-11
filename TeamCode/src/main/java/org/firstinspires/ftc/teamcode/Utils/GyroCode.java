@@ -70,6 +70,7 @@ public class GyroCode
         angle_error = desiredAngle - (float)angles.firstAngle;
         motorPowerCorrection = -0.025f * angle_error;
         motorPowerCorrection = min(max(motorPowerCorrection, -1.0f),1.0f);
+
         return motorPowerCorrection;
     }
 
