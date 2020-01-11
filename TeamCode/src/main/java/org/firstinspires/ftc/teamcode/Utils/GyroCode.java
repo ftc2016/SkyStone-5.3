@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.Utils;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.Hardware;
@@ -79,13 +82,16 @@ public class GyroCode
 
         float motorPower = 0;
 
-        while (abs(angle_error) > 1.0f)
+        while (abs(angle_error) > 2.0f)
         {
             motorPower = getRotationCorrection(desired_angle);
             robot.MotorFrontX.setPower(motorPower);
-            robot.MotorFrontY.setPower(motorPower);
+            robot.MotorFrontY.setPower(-motorPower);
             robot.MotorBackX.setPower(-motorPower);
-            robot.MotorBackY.setPower(-motorPower);
+            robot.MotorBackY.setPower(+motorPower);
+
+            if((abs(angle_error))<3.0f)
+                break;
         }
     }
 }

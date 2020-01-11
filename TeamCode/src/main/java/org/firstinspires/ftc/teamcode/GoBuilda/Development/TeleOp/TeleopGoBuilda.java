@@ -1,33 +1,26 @@
 package org.firstinspires.ftc.teamcode.GoBuilda.Development.TeleOp;
 
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.Utils.UtilTest;
 
-import org.firstinspires.ftc.teamcode.Utils.GoBuildaUtil;
-
-@TeleOp(name = "Scrim 4 TeleTubbies", group = "actual")
-public class TeleOpDrive extends OpMode
+@TeleOp(name = "TeleTubbies Test", group = "actual")
+public class TeleopGoBuilda extends OpMode
 {
 
-    private double rotnPosScale = 20, rotnPowScale = .002;
-    private double extendPosScale = 250, extendPowScale = 0.002;
-    double armCommand, armPosIntegrator = 0;
+    private double liftPosScale = 5.0, liftPowScale = 0.025;
+    private double liftPosCurrent, liftPosDes, liftPosError, liftPow;
+    private double integrater = 0, intpower = 0.00075;
 
-    private double armPosCurrent, armPosDes, armPosError;
+    private double extendPosScale = 5.0, extendPowScale = 0.025;
     private double extendPosCurrent, extendPosDes, extendPosError, extendPow;
+
 
     double multiplier = 1, speedK = 1;
     boolean turtle = false, sloth = false;
-    double foundPos = 0;
+    double rotPos = 0.5, foundPos = 0;
 
-   GoBuildaUtil robot = new GoBuildaUtil();
-
-    double position = 0, ANGLE = 0.531992018, blockPos = 1  ;
+    UtilTest robot = new UtilTest();
 
     @Override
     public void init()
@@ -37,17 +30,17 @@ public class TeleOpDrive extends OpMode
     }
 
     @Override
-    public void loop()
-    {
-        if(turtle)
+    public void loop() {
+        if (turtle)
             multiplier = 0.45;
         else
             multiplier = 1;
 
-        if(sloth)
+        if (sloth)
             speedK = 0.45;
         else
             speedK = 1;
+
 
         // initializing wheel variables
         double powerXWheels = 0;
@@ -69,11 +62,18 @@ public class TeleOpDrive extends OpMode
         float rotationCW = gamepad1.right_trigger;
         float rotationACW = gamepad1.left_trigger;
 
-        if(gamepad1.a)
+        if(gamepad1.b)
             turtle = !turtle;
 
-        if(gamepad2.a)
+        if(gamepad2.b)
             sloth = !sloth;
+
+        if (gamepad1.a) {
+            multiplier = 1;
+        }
+        if (gamepad2.a) {
+            speedK = 1;
+        }
 
         if(rotationACW !=0)
         {
@@ -83,7 +83,6 @@ public class TeleOpDrive extends OpMode
             robot.MotorBackY.setPower(-gamepad1.left_trigger);
         }
 
-        //Turning anticlockwise
         if (rotationCW !=0)
         {
             robot.MotorFrontX.setPower(gamepad1.right_trigger);
@@ -92,44 +91,50 @@ public class TeleOpDrive extends OpMode
             robot.MotorBackY.setPower(gamepad1.right_trigger);
         }
 
-        if (gamepad2.dpad_up&&position < 1.1)
-        {
-            ANGLE += 0.02;
-        }
-        if (gamepad2.dpad_down && position > -0.1)
-        {
-            ANGLE += -0.02;
-        }
         if (gamepad2.left_bumper)
         {
             robot.graspL.setPosition(1);
             robot.graspR.setPosition(0);
         }
         if (gamepad2.right_bumper) {
-            robot.graspL.setPosition(0);
-            robot.graspR.setPosition(1);
-        }
-
-        if(gamepad1.dpad_left)
-            blockPos += 0.05;
-        if(gamepad1.dpad_right)
-            blockPos -= 0.05;
+        robot.graspL.setPosition(0);
+        robot.graspR.setPosition(1);
+    }
 
         if(gamepad1.dpad_up) { foundPos += 0.05; }
 
         if(gamepad1.dpad_down) {  foundPos -= 0.05; }
 
-        telemetry.addData("Foundation Data", foundPos);
-        telemetry.addData("Y power", powerYWheels*multiplier);
+        if(gamepad1.dpad_left) { rotPos -= 0.15; }
+
+        if(gamepad1.dpad_left) { rotPos += 0.15; }
+
+        if(gamepad1.right_bumper) { robot.block_drag_grasp.setPosition(1); }
+
+        if(gamepad1.left_bumper) { robot.block_drag_grasp.setPosition(0); }
+
+        robot.block_drag.setPosition(rotPos);
+
+
+        telemetry.addData("rot Data", rotPos);
+        telemetry.addData("robot.block_drag_grasp posn", robot.block_drag_grasp.getPosition());
         telemetry.update();
 
-        telemetry.addData("Value", blockPos );
+        liftPosCurrent = robot.motorVertical.getCurrentPosition();
+
+        liftPosDes += liftPosScale * gamepad2.left_stick_y;
+        liftPosError = liftPosDes - liftPosCurrent;
+        integrater += liftPosError;
+        liftPow = Math.min(Math.max(liftPowScale*liftPosError + integrater*intpower, -1.00), 1.00);
+        robot.motorVertical.setPower(liftPow);
+
 
         extendPosCurrent = robot.motorExtend.getCurrentPosition();
 
-        extendPosDes += extendPosScale * gamepad2.left_stick_x;
+        extendPosDes += extendPosScale * gamepad2.right_stick_y;
         extendPosError = extendPosDes - extendPosCurrent;
         extendPow = Math.min(Math.max(extendPowScale*extendPosError, -1.00), 1.00);
         robot.motorExtend.setPower(extendPow);
+
     }
 }

@@ -19,19 +19,19 @@ public class BlueFoundationMover extends LinearOpMode
 
         waitForStart();
 
-        robot.foundation.setPosition(0.6);
+//        robot.foundation.setPosition(0.6);
 
         robot.moveX(-14, 0.2);
         robot.moveY(37,0.2);
         sleep(500);
 
-        robot.foundation.setPosition(0.2);
+//        robot.foundation.setPosition(0.2);
         sleep(500);
 
         robot.moveY(-40, 0.15);
         sleep(500);
 
-        robot.foundation.setPosition(0.6);
+//        robot.foundation.setPosition(0.6);
         robot.moveX(58, 0.3);
         robot.moveY(-2, 0.5);
     }
