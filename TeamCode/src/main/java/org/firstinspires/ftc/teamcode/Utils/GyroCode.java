@@ -61,7 +61,6 @@ public class GyroCode
         return (imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES));
     }
 
-    //We input the desired angle and this method will return the motorPower to return to desAngle orientation
     float getRotationCorrection(float desiredAngle)
     {
         float motorPowerCorrection;
@@ -75,7 +74,6 @@ public class GyroCode
         return motorPowerCorrection;
     }
 
-    //This method moves the robot and does the necessary by using getRotCorr
     public void rotationCorrection(float des_angle)
     {
         float desired_angle = des_angle;

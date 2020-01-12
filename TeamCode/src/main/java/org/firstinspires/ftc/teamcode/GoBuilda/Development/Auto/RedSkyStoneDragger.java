@@ -43,29 +43,27 @@ public class RedSkyStoneDragger extends LinearOpMode
         dragBlock("rot","down");
         Thread.sleep(700);
         dragBlock("grasp", "chomp");
-        Thread.sleep(700);
-        dragBlock("rot", "up");
 
         if(blockPos == 'l')
         {
             robot.moveY(-10, 0.2);
-            robot.moveX(-56, 0.5);
+            moveX(-56, 0.4);
         }
 
         if(blockPos == 'c')
         {
             robot.moveY(-10, 0.2);
-            robot.moveX(-48, 0.5);
+            moveX(-48, 0.4);
         }
 
         if(blockPos == 'r')
         {
             robot.moveY(-10, 0.2);
-            robot.moveX(-40, 0.5);
+            moveX(-40, 0.4);
         }
 
-        dragBlock("rot","down");
-        Thread.sleep(700);
+//        dragBlock("rot","down");
+//        Thread.sleep(1500);
         dragBlock("grasp", "unchomp");
         Thread.sleep(700);
         dragBlock("rot","up");
@@ -73,33 +71,29 @@ public class RedSkyStoneDragger extends LinearOpMode
 
         if(blockPos == 'l')
         {
-            robot.moveX(76, 0.5);
+            moveX(76, 0.4);
         }
 
         if(blockPos == 'c')
         {
-            robot.moveX(68, 0.5);
+            moveX(68, 0.4);
         }
 
         if(blockPos == 'r')
         {
-            robot.moveX(60, 0.5);
+            moveX(60, 0.4);
         }
 
-        gc.rotationCorrection(0);
         Thread.sleep(250);
         moveSetDistance();
 
         dragBlock("rot","down");
         Thread.sleep(700);
         dragBlock("grasp", "chomp");
-        Thread.sleep(700);
-        dragBlock("rot", "up");
-
 
         robot.moveY(-10, 0.2);
         Thread.sleep(500);
-        robot.moveX(-75, 0.5);
+        moveX(-75, 0.5);
 
         dragBlock("rot","down");
         Thread.sleep(700);
@@ -107,9 +101,18 @@ public class RedSkyStoneDragger extends LinearOpMode
         Thread.sleep(700);
         dragBlock("rot","up");
 
-        robot.moveX(10, 1);
+        moveX(15, 0.5);
     }
     
+
+    private int inchesToCounts(double inches) {
+        //wheel specification
+        final double Servocity_Omnni_Circumference = Math.PI * 4;
+        final double GoBuilda_YJ_435_eventsPerRev = 383.6;
+        final double COUNTS_PER_REVOLUTION = GoBuilda_YJ_435_eventsPerRev / Servocity_Omnni_Circumference;
+
+        return (int) (COUNTS_PER_REVOLUTION * inches);
+    }
 
     private void moveSetDistance()
     {
@@ -192,7 +195,7 @@ public class RedSkyStoneDragger extends LinearOpMode
         //Y[YB]
         if (leftNormalizedColors > 5 && rightNormalizedColors < 5)
         {
-            robot.moveX(-3, 0.2);
+            moveX(-3, 0.2);
             telemetry.addData("right", null);
             telemetry.update();
             blockPos = 'r';
@@ -202,7 +205,7 @@ public class RedSkyStoneDragger extends LinearOpMode
         //Y[BY]
         if (leftNormalizedColors < 5 && rightNormalizedColors > 5)
         {
-            robot.moveX(0, 0.2);
+            moveX(0, 0.2);
             telemetry.addData("center", null);
             telemetry.update();
             blockPos = 'c';
@@ -211,7 +214,7 @@ public class RedSkyStoneDragger extends LinearOpMode
         //B[YY]
         if (leftNormalizedColors > 5 && rightNormalizedColors > 5)
         {
-            robot.moveX(9, 0.2);
+            moveX(9, 0.2);
             telemetry.addData("left", null);
             telemetry.update();
            blockPos = 'l';
@@ -233,6 +236,23 @@ public class RedSkyStoneDragger extends LinearOpMode
             robot.graspL.setPosition(0);
             robot.graspR.setPosition(1);
         }
+    }
+
+    private void moveX(double inches, double power)
+    {
+        int counts = inchesToCounts(inches);
+
+        robot.MotorFrontX.setPower(power);
+        robot.MotorBackX.setPower(power);
+
+        robot.MotorFrontX.setTargetPosition((robot.MotorFrontX.getCurrentPosition() + (counts)));
+        robot.MotorBackX.setTargetPosition((robot.MotorBackX.getCurrentPosition() + (counts)));
+
+        robot.MotorFrontX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.MotorBackX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (opModeIsActive() && robot.MotorBackX.isBusy() && robot.MotorFrontX.isBusy())
+        { }
     }
 
 
