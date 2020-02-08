@@ -1,25 +1,22 @@
 package org.firstinspires.ftc.teamcode.GoBuilda.Development.Auto;
 
-import android.util.Log;
-
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+<<<<<<< Updated upstream
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-
-import java.util.Collection;
+=======
+import org.firstinspires.ftc.teamcode.Utils.GoBuildaUtil;
+import org.firstinspires.ftc.teamcode.Utils.GyroCode;
+>>>>>>> Stashed changes
 
 @Autonomous(name="Red SkyStoneDragger", group = "Red")
 public class RedSkyStoneDragger extends LinearOpMode
 {
 
+<<<<<<< Updated upstream
     //initalizing sensors
     private ColorSensor leftColor, rightColor;
     private DistanceSensor leftDistance, rightDistance;
@@ -31,18 +28,34 @@ public class RedSkyStoneDragger extends LinearOpMode
     //initializing motors
     private DcMotor MotorFrontY, MotorFrontX, MotorBackX, MotorBackY, motorRotate, motorExtend;
     Servo grasp1, grasp2, angle1, angle2, rightCollection, leftCollection, foundation;
+=======
+    char blockPos = ' ';
+
+    GoBuildaUtil robot = new GoBuildaUtil();
+    GyroCode gyro = new GyroCode();
+>>>>>>> Stashed changes
 
 
     @Override
     public void runOpMode() throws InterruptedException
     {
+<<<<<<< Updated upstream
         initializeMotors();
         initSensors();
+=======
+        robot.initializeAuto(hardwareMap);
+        robot.block_drag_grasp.setPosition(0);
+        robot.initializeSensors(hardwareMap);
+        gyro.initGyro(hardwareMap);
+>>>>>>> Stashed changes
 
         waitForStart();
 
+        //First Block
+        moveSetDistance();
         detectBlock();
 
+<<<<<<< Updated upstream
         moveY(1,0.2);
 
         collectBlock("right","down");
@@ -133,6 +146,92 @@ public class RedSkyStoneDragger extends LinearOpMode
         leftDistance = hardwareMap.get(DistanceSensor.class, "left");
         rightDistance = hardwareMap.get(DistanceSensor.class, "right");
     }
+=======
+        //Grab block
+        dragBlock("rot","down");
+        Thread.sleep(700);
+        dragBlock("grasp", "chomp");
+        Thread.sleep(700);
+        dragBlock("rot", "up");
+
+        robot.moveY(-8, 0.2,2);
+
+        //moving towards the quarry
+        if(blockPos == 'l') { moveX(-79, 0.5); }
+
+        if(blockPos == 'c') { moveX(-70, 0.5); }
+
+        if(blockPos == 'r') { moveX(-62, 0.5); }
+
+        //moving towards the foundation
+        moveY(17, 0.75);
+        dragBlock("grasp", "unchomp");
+        Thread.sleep(500);
+
+        moveY(-13, 0.5);
+        dragBlock("rot", "travel");
+
+        //2nd block
+        if(blockPos == 'l') { moveX(105, 0.4); }
+
+        if(blockPos == 'c') { moveX(95, 0.4); }
+
+        if(blockPos == 'r') { moveX(90, 0.4); }
+
+        Thread.sleep(250);
+
+        telemetry.addData("Entering Gyro", null);
+        telemetry.update();
+
+        robot.NOENC();
+        gyro.rotationCorrection(0, 0.3, 1);
+        robot.initializeAuto(hardwareMap);
+        dragBlock("rot", "up");
+
+        telemetry.addData("EXItinG Gyro", null);
+        telemetry.update();
+
+        moveSetDistance();
+//        moveY(-1.5, 1);
+
+        //grabbing 2nd block
+        dragBlock("rot","down");
+        Thread.sleep(400);
+        dragBlock("grasp", "chomp");
+        Thread.sleep(700);
+        dragBlock("rot", "up");
+
+        //moving back and towards the foundation side
+        robot.moveY(-8, 0.2,2);
+        Thread.sleep(150);
+
+        //Motor gets weird power statem
+        robot.NOENC();
+        gyro.rotationCorrection(0, 0.3, 1);
+        robot.initializeAuto(hardwareMap);
+
+        moveX(-105, 0.5);
+
+        robot.NOENC();
+        gyro.rotationCorrection(0, 0.3, 1);
+        robot.initializeAuto(hardwareMap);
+
+        //releasing 2nd block
+        moveY(19, 0.5);
+        dragBlock("grasp", "unchomp");
+        moveY(-10, 0.5);
+
+        robot.NOENC();
+        gyro.rotationCorrection(0, 0.3, 1);
+        robot.initializeAuto(hardwareMap);
+
+        // FoundRot();
+
+        dragBlock("rot", "travel");
+        moveX(35.0, 1.0);
+    }
+
+>>>>>>> Stashed changes
 
     private int inchesToCounts(double inches) {
         //wheel specification
@@ -151,8 +250,13 @@ public class RedSkyStoneDragger extends LinearOpMode
         MotorFrontY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         MotorBackY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+<<<<<<< Updated upstream
         double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM)) / 2;
         final int DESIRED_D = 50;
+=======
+        double current = (robot.leftDistance.getDistance(DistanceUnit.MM) + robot.rightDistance.getDistance(DistanceUnit.MM)) / 2;
+        final int DESIRED_D = 56;
+>>>>>>> Stashed changes
 
         while (current >= DESIRED_D)
         {
@@ -167,6 +271,7 @@ public class RedSkyStoneDragger extends LinearOpMode
             MotorBackX.setPower(0);
         }
 
+<<<<<<< Updated upstream
         MotorFrontY.setPower(-0.1);
         MotorBackY.setPower(-0.1);
 
@@ -174,6 +279,12 @@ public class RedSkyStoneDragger extends LinearOpMode
         telemetry.addData("MotorFrontY power", MotorFrontY.getPower());
         telemetry.addData("MotorBackX power", MotorBackX.getPower());
         telemetry.addData("MotorackY power", MotorBackY.getPower());
+=======
+        telemetry.addData("robot.MotorFrontX power", robot.MotorFrontX.getPower());
+        telemetry.addData("robot.MotorFrontY power", robot.MotorFrontY.getPower());
+        telemetry.addData("robot.MotorBackX power", robot.MotorBackX.getPower());
+        telemetry.addData("MotorackY power", robot.MotorBackY.getPower());
+>>>>>>> Stashed changes
         telemetry.update();
 
         MotorFrontY.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -187,6 +298,7 @@ public class RedSkyStoneDragger extends LinearOpMode
 
     private void detectBlock() throws InterruptedException
     {
+<<<<<<< Updated upstream
         MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorFrontY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -216,19 +328,21 @@ public class RedSkyStoneDragger extends LinearOpMode
 
         Log.i("LeftNormalizationValue", ""+leftNormalizedColors);
         Log.i("RightNormalizationValue", ""+rightNormalizedColors);
-
-        Thread.sleep(500);
-
-        telemetry.addData("Left ", leftNormalizedColors);
-        telemetry.addData("Right", rightNormalizedColors);
-        telemetry.update();
+=======
+        double leftNormalizedColors = (robot.leftColor.red()*robot.leftColor.green())/Math.pow(robot.leftColor.blue(),2);
+        double rightNormalizedColors = (robot.rightColor.red()*robot.rightColor.green()/ Math.pow(robot.rightColor.blue(),2));
+>>>>>>> Stashed changes
 
         // Yellow is greater than 0.5 and black is less than 0.5
         //Y[YB]
         if (leftNormalizedColors > 0.5 && rightNormalizedColors < 0.5)
         {
+<<<<<<< Updated upstream
             blockPos = 'r';
             moveX(2, 0.2);
+=======
+            moveX(-9, 0.25);
+>>>>>>> Stashed changes
             telemetry.addData("right", null);
             telemetry.update();
         }
@@ -245,15 +359,22 @@ public class RedSkyStoneDragger extends LinearOpMode
         //B[YY]
         if (leftNormalizedColors > 0.5 && rightNormalizedColors > 0.5)
         {
+<<<<<<< Updated upstream
             blockPos = 'l';
             moveX(20, 0.2);
+=======
+            moveX(9, 0.25);
+>>>>>>> Stashed changes
             telemetry.addData("left", null);
             telemetry.update();
         }
+<<<<<<< Updated upstream
 
         Thread.sleep(500);
         telemetry.update();
         Thread.sleep(500);
+=======
+>>>>>>> Stashed changes
     }
 
     void agaga(String position) {
@@ -345,12 +466,44 @@ public class RedSkyStoneDragger extends LinearOpMode
 
         motorExtend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+<<<<<<< Updated upstream
         while (opModeIsActive() && motorExtend.isBusy()) {
             telemetry.addData("extension error = ", motorExtend.getTargetPosition() - (motorExtend.getCurrentPosition() + counts));
             telemetry.update();
             if((motorExtend.getCurrentPosition()> motorExtend.getTargetPosition()-20) && (motorExtend.getCurrentPosition()<motorExtend.getTargetPosition()+20))
                 break;
         }
+=======
+        while(opModeIsActive() && robot.MotorBackX.isBusy() && robot.MotorFrontX.isBusy())
+        {
+            telemetry.addData("frontX", robot.MotorFrontX.isBusy());
+            telemetry.addData("backX", robot.MotorBackX.isBusy());
+            telemetry.update();
+        }
+
+        robot.setZero();
+    }
+
+    public void moveY(double inches, double power)
+    {
+        int counts = inchesToCounts(inches);
+
+        robot.MotorFrontY.setPower(-power);
+        robot.MotorBackY.setPower(-power);
+
+        robot.MotorFrontY.setTargetPosition((robot.MotorFrontY.getCurrentPosition() + (counts)));
+        robot.MotorBackY.setTargetPosition((robot.MotorBackY.getCurrentPosition() + (counts)));
+
+        robot.MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (robot.MotorBackY.isBusy() && robot.MotorFrontY.isBusy())
+        {
+
+        }
+
+        robot.setZero();
+>>>>>>> Stashed changes
     }
 
     void armRotate(int counts, double power)
@@ -390,7 +543,19 @@ public class RedSkyStoneDragger extends LinearOpMode
                 leftCollection.setPosition(0.35);
 
             if (pos.equalsIgnoreCase("up"))
+<<<<<<< Updated upstream
                 leftCollection.setPosition(1);
+=======
+                robot.block_drag.setPosition(0.65);
+
+            if(pos.equalsIgnoreCase("travel"))
+                robot.block_drag.setPosition(0.80);
+>>>>>>> Stashed changes
         }
+    }
+
+    void FoundRot()
+    {
+
     }
 }

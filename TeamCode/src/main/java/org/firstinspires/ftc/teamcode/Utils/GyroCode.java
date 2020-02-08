@@ -1,7 +1,16 @@
 package org.firstinspires.ftc.teamcode.Utils;
 
+import android.util.Log;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+<<<<<<< Updated upstream
+=======
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+>>>>>>> Stashed changes
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.Hardware;
@@ -16,6 +25,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+@Disabled
 public class GyroCode
 {
     //gyro init
@@ -23,8 +33,12 @@ public class GyroCode
     Orientation angles;
 
     HardwareMap hard;
-
     GoBuildaUtil robot = new GoBuildaUtil();
+
+    double last_angle_error;
+    double motorPower;
+    double angle_error;
+    double motorPowerCorrection;
 
     public void initGyro(HardwareMap hw)
     {
@@ -58,27 +72,40 @@ public class GyroCode
         return (imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES));
     }
 
-    float getRotationCorrection(float desiredAngle)
+    public double getRotationCorrection(double desiredAngle, double desPower)
     {
-        float motorPowerCorrection;
-        float angle_error;
+        double sum;
         angles = getAngles();
 
+<<<<<<< Updated upstream
         angle_error = desiredAngle - (float)angles.firstAngle;
         motorPowerCorrection = -0.025f * angle_error;
         motorPowerCorrection = min(max(motorPowerCorrection, -1.0f),1.0f);
         return motorPowerCorrection;
+=======
+        angle_error = desiredAngle - angles.firstAngle;
+        sum = -0.02f * angle_error;
+        motorPowerCorrection -= angle_error*0.003;
+        motorPowerCorrection = min(max(motorPowerCorrection,-.1),.1);
+        sum = min(max(motorPowerCorrection+sum, -desPower), desPower);
+
+        return sum;
+>>>>>>> Stashed changes
     }
 
-    public void rotationCorrection(float des_angle)
+    public void resetVariables()
     {
-        float desired_angle = des_angle;
-        float angle_error = 10000.0f;
+        double last_angle_error = 10000;
+        double motorPower = 1500;
+        double angle_error = 1500;
+        double motorPowerCorrection= 1500;
+    }
 
-        angles = getAngles();
+    public void rotationCorrection(double des_angle, double pow, double allowedError)
+    {
+        motorPowerCorrection = 0;
 
-        float motorPower = 0;
-
+<<<<<<< Updated upstream
         while (abs(angle_error) > 1.0f)
         {
             motorPower = getRotationCorrection(desired_angle);
@@ -86,6 +113,21 @@ public class GyroCode
             robot.MotorFrontY.setPower(motorPower);
             robot.MotorBackX.setPower(-motorPower);
             robot.MotorBackY.setPower(-motorPower);
+=======
+        while (abs(angle_error) > allowedError || abs(last_angle_error) > allowedError)
+        {
+            Log.i("LOL", "Running the gyro unsuccesfully");
+            last_angle_error = angle_error;
+            motorPower = getRotationCorrection(des_angle, pow);
+            robot.MotorFrontX.setPower(-motorPower);
+            robot.MotorFrontY.setPower(motorPower);
+            robot.MotorBackX.setPower(motorPower);
+            robot.MotorBackY.setPower(-motorPower);
+            Log.i("angleError: ", ""+angle_error);
+            Log.i("lastAngleError: ", ""+last_angle_error);
+>>>>>>> Stashed changes
         }
     }
+
+    //Target Mode Power
 }

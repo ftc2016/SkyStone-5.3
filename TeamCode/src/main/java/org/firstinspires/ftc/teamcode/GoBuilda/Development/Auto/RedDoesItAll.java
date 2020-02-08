@@ -2,248 +2,273 @@ package org.firstinspires.ftc.teamcode.GoBuilda.Development.Auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Utils.GoBuildaUtil;
+import org.firstinspires.ftc.teamcode.Utils.GyroCode;
 
-import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
-
-@Autonomous(name = "Red DoesItAll", group = "Red")
+@Autonomous(name="Red Trials", group = "Red")
 public class RedDoesItAll extends LinearOpMode
 {
-    private ColorSensor leftColor, rightColor;
-    private DistanceSensor leftDistance, rightDistance;
 
-    private DcMotor MotorFrontY, MotorFrontX, MotorBackX, MotorBackY, motorRotate, motorExtend;
-    Servo grasp, angle, foundation1, foundation2;
+    char blockPos = ' ';
+
+    GoBuildaUtil robot = new GoBuildaUtil();
+    GyroCode gyro = new GyroCode();
 
 
     @Override
     public void runOpMode() throws InterruptedException
     {
+        robot.initializeAuto(hardwareMap);
+        robot.block_drag_grasp.setPosition(0);
+        robot.initializeSensors(hardwareMap);
+        gyro.initGyro(hardwareMap);
 
+        waitForStart();
+
+        //First Block
+        moveSetDistance(60);
+
+        detectBlock();
+//
+//        dragBlock("rot","down");
+//        Thread.sleep(700);
+//        dragBlock("grasp", "chomp");
+//        Thread.sleep(700);
+//        dragBlock("rot", "up");
+//
+//        robot.moveY(-8, 0.2);
+//
+//        //moving towards the quarry
+//        if(blockPos == 'l') { moveX(-79, 0.5); }
+//
+//        if(blockPos == 'c') { moveX(-70, 0.5); }
+//
+//        if(blockPos == 'r') { moveX(-62, 0.5); }
+//
+//        //moving towards the foundation
+//        moveY(17, 0.75);
+//        dragBlock("grasp", "unchomp");
+//        Thread.sleep(500);
+//
+//        moveY(-13, 0.5);
+//        dragBlock("rot", "travel");
+//
+//        //2nd block
+//        if(blockPos == 'l') { moveX(105, 0.4); }
+//
+//        if(blockPos == 'c') { moveX(95, 0.4); }
+//
+//        if(blockPos == 'r') { moveX(90, 0.4); }
+//
+//        Thread.sleep(250);
+//
+//        telemetry.addData("Entering Gyro", null);
+//        telemetry.update();
+//
+//        robot.ENC();
+//        gyro.rotationCorrection(0, 0.3);
+//        robot.initializeAuto(hardwareMap);
+//        dragBlock("rot", "up");
+//
+//        telemetry.addData("EXItinG Gyro", null);
+//        telemetry.update();
+//
+//        moveSetDistance(56);
+////        moveY(-1.5, 1);
+//
+//        //grabbing 2nd block
+//        dragBlock("rot","down");
+//        Thread.sleep(400);
+//        dragBlock("grasp", "chomp");
+//        Thread.sleep(700);
+//        dragBlock("rot", "up");
+//
+//        //moving back and towards the foundation side
+//        robot.moveY(-8, 0.2);
+//        Thread.sleep(150);
+//
+//        robot.NOENC();
+//        gyro.rotationCorrection(0, 0.3);
+//        robot.initializeAuto(hardwareMap);
+//
+//        moveX(-105, 0.5);
+//
+//        robot.NOENC();
+//        gyro.rotationCorrection(0, 0.3);
+//        robot.initializeAuto(hardwareMap);
+//
+//        //releasing 2nd block
+//        moveY(19, 0.5);
+//        dragBlock("grasp", "unchomp");
+//        moveY(-10, 0.5);
+//
+//        robot.NOENC();
+//        gyro.rotationCorrection(0, 0.3);
+//        robot.initializeAuto(hardwareMap);
+//
+//        // FoundRot();
+//
+//        dragBlock("rot", "travel");
+//        moveX(35.0, 1.0);
     }
 
-    private void initializeMotors()
-    {
-        MotorFrontX = hardwareMap.dcMotor.get("fx");
-        MotorBackX = hardwareMap.dcMotor.get("bx");
-        MotorFrontY = hardwareMap.dcMotor.get("fy");
-        MotorBackY = hardwareMap.dcMotor.get("by");
-
-        MotorFrontX.setDirection(DcMotor.Direction.REVERSE);
-        MotorBackX.setDirection(DcMotor.Direction.FORWARD);
-        MotorFrontY.setDirection(DcMotor.Direction.FORWARD);
-        MotorBackY.setDirection(DcMotor.Direction.REVERSE);
-
-        MotorFrontX.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        MotorBackX.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        MotorFrontY.setZeroPowerBehavior(BRAKE);
-        MotorBackY.setZeroPowerBehavior(BRAKE);
-        MotorBackX.setZeroPowerBehavior(BRAKE);
-        MotorFrontX.setZeroPowerBehavior(BRAKE);
-
-
-        motorExtend = hardwareMap.dcMotor.get("extend");
-        motorExtend.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorExtend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        motorRotate = hardwareMap.dcMotor.get("rotate");
-        motorRotate.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorRotate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorRotate.setZeroPowerBehavior(BRAKE);
-
-        grasp = hardwareMap.servo.get("grasp");
-        foundation1 = hardwareMap.servo.get("foundation1");
-        foundation2 = hardwareMap.servo.get("foundation");
-        angle = hardwareMap.servo.get("angle");
-
-        grasp.setPosition(1);
-        angle.setPosition(0.65);
-        foundation1.setPosition(0);
-        foundation2.setPosition(0);
-    }
-
-    private void initSensors()
-    {
-        leftColor = hardwareMap.get(ColorSensor.class, "left");
-        rightColor = hardwareMap.get(ColorSensor.class, "right");
-
-        leftDistance = hardwareMap.get(DistanceSensor.class, "left");
-        rightDistance = hardwareMap.get(DistanceSensor.class, "right");
-    }
 
     private int inchesToCounts(double inches)
     {
         //wheel specification
         final double Servocity_Omnni_Circumference = Math.PI * 4;
         final double GoBuilda_YJ_435_eventsPerRev = 383.6;
-        final double COUNTS_PER_REVOLUTION = GoBuilda_YJ_435_eventsPerRev/Servocity_Omnni_Circumference;
+        final double COUNTS_PER_REVOLUTION = GoBuilda_YJ_435_eventsPerRev / Servocity_Omnni_Circumference;
 
-        return (int)(COUNTS_PER_REVOLUTION*inches);
+        return (int) (COUNTS_PER_REVOLUTION * inches);
     }
 
-    private void detectBlock()
+    private void moveSetDistance(int DESIRED_D)
     {
-        char blockPos = ' ';
-        MotorFrontY.setZeroPowerBehavior(BRAKE);
-        MotorBackY.setZeroPowerBehavior(BRAKE);
+        robot.MotorFrontY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.MotorBackY.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        double current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2;
-        final int DESIRED_D = 50;
+        robot.MotorFrontY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.MotorBackY.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        while(current >= DESIRED_D)
+        double current = (robot.leftDistance.getDistance(DistanceUnit.MM) + robot.rightDistance.getDistance(DistanceUnit.MM)) / 2;
+
+        while (current >= DESIRED_D)
         {
-            current = (leftDistance.getDistance(DistanceUnit.MM) + rightDistance.getDistance(DistanceUnit.MM))/2;
+            telemetry.addData("Moving to set Distance", current);
+            telemetry.update();
 
-            MotorFrontY.setPower(0.15);
-            MotorBackY.setPower(0.15);
+            robot.MotorFrontY.setPower(0.3);
+            robot.MotorBackY.setPower(0.3);
+            robot.MotorFrontX.setPower(0);
+            robot.MotorBackX.setPower(0);
+
+            current = (robot.leftDistance.getDistance(DistanceUnit.MM) + robot.rightDistance.getDistance(DistanceUnit.MM)) / 2;
         }
 
-        MotorFrontY.setPower(0);
-        MotorBackY.setPower(0);
+        robot.MotorFrontY.setPower(0);
+        robot.MotorBackY.setPower(0);
 
-        double leftNormalizedColors = (leftColor.green()+leftColor.red()+leftColor.blue())/Math.pow(leftDistance.getDistance(DistanceUnit.MM),2);
-        double rightNormalizedColors = (rightColor.green()+rightColor.red()+rightColor.blue())/Math.pow(rightDistance.getDistance(DistanceUnit.MM),2);
+        robot.MotorFrontY.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.MotorBackY.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.MotorFrontY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.MotorBackY.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
 
-        if (rightNormalizedColors<0.5&&leftNormalizedColors>0.5)
+    private void detectBlock() throws InterruptedException
+    {
+        double leftNormalizedColors = (robot.leftColor.red()*robot.leftColor.green())/Math.pow(robot.leftColor.blue(),2);
+        double rightNormalizedColors = (robot.rightColor.red()*robot.rightColor.green()/ Math.pow(robot.rightColor.blue(),2));
+
+        // Yellow is greater than 0.5 and black is less than 0.5
+        //Y[YB]
+        if (leftNormalizedColors > 5 && rightNormalizedColors < 5)
         {
-            blockPos = 'r';
+            moveX(-9, 0.25);
             telemetry.addData("right", null);
-            sleep(1000);
+            telemetry.update();
+            blockPos = 'r';
         }
 
-        if(leftNormalizedColors<0.5&&rightNormalizedColors>0.5)
+        //Y[BY]
+        if (leftNormalizedColors < 5 && rightNormalizedColors > 5)
         {
-            blockPos = 'c';
+            moveX(0, 0.2);
             telemetry.addData("center", null);
-            sleep(1000);
+            telemetry.update();
+            blockPos = 'c';
         }
 
-        if(leftNormalizedColors<0.5&&rightNormalizedColors<0.5)
+        //B[YY]
+        if (leftNormalizedColors > 5 && rightNormalizedColors > 5)
         {
-            blockPos = 'l';
+            moveX(9, 0.25);
             telemetry.addData("left", null);
-            sleep(1000);
-        }
-        sleep(1000);
-        telemetry.update();
-        sleep(1000);
+            telemetry.update();
+            blockPos = 'l';
 
-        switch(blockPos)
-        {
-            case 'r': moveX(-4, 0.2);
-                break;
-            case 'c': moveX(4, 0.2);
-                break;
-            case 'l': moveX(12, 0.2);
-                break;
-            default:
-                moveY(-2, 0.7);
-                detectBlock();
         }
     }
 
-    void moveY(double inches, double power)
+    void agaga(String position) {
+        if (position.equals("release"))
+        {
+            robot.graspL.setPosition(1);
+            robot.graspR.setPosition(0);
+        }
+
+        if (position.equals("grasp"))
+        {
+            robot.graspL.setPosition(0);
+            robot.graspR.setPosition(1);
+        }
+    }
+
+    private void moveX(double inches, double power)
     {
         int counts = inchesToCounts(inches);
 
-        MotorFrontY.setPower(-power);
-        MotorBackY.setPower(-power);
+        robot.MotorFrontX.setPower(power);
+        robot.MotorBackX.setPower(power);
 
-        MotorFrontY.setTargetPosition((MotorFrontY.getCurrentPosition() + (counts)));
-        MotorBackY.setTargetPosition((MotorBackY.getCurrentPosition() + (counts)));
+        robot.MotorFrontX.setTargetPosition((robot.MotorFrontX.getCurrentPosition() + (counts)));
+        robot.MotorBackX.setTargetPosition((robot.MotorBackX.getCurrentPosition() + (counts)));
 
-        MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.MotorFrontX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.MotorBackX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (opModeIsActive() && MotorBackY.isBusy() && MotorFrontY.isBusy())
+        while (opModeIsActive() && robot.MotorBackX.isBusy() && robot.MotorFrontX.isBusy())
         {
-            telemetry.addData("Running motor Y front and back", "Encoders");
-            telemetry.update();
         }
     }
 
-    void moveX(double inches, double power)
+    public void moveY(double inches, double power)
     {
         int counts = inchesToCounts(inches);
 
-        MotorFrontX.setPower(power);
-        MotorBackX.setPower(power);
+        robot.MotorFrontY.setPower(-power);
+        robot.MotorBackY.setPower(-power);
 
-        MotorFrontX.setTargetPosition((MotorFrontX.getCurrentPosition() + (counts)));
-        MotorBackX.setTargetPosition((MotorBackX.getCurrentPosition() + (counts)));
+        robot.MotorFrontY.setTargetPosition((robot.MotorFrontY.getCurrentPosition() + (counts)));
+        robot.MotorBackY.setTargetPosition((robot.MotorBackY.getCurrentPosition() + (counts)));
 
-        MotorFrontX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        MotorBackX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (opModeIsActive() && MotorBackX.isBusy() && MotorFrontX.isBusy())
+        while (robot.MotorBackY.isBusy() && robot.MotorFrontY.isBusy())
         {
-            telemetry.addData("Running motor X front and back", "Encoders");
-            telemetry.update();
         }
     }
 
-    void botRotate(int distance, int power)
+    void dragBlock(String servo, String pos) throws InterruptedException
     {
-        MotorBackY.setPower(power);
-        MotorBackX.setPower(power);
-        MotorFrontX.setPower(power);
-        MotorFrontY.setPower(power);
-
-        int COUNTS = inchesToCounts(distance);
-
-        MotorFrontX.setTargetPosition(MotorFrontX.getCurrentPosition() + (COUNTS));
-        MotorBackX.setTargetPosition(MotorBackX.getCurrentPosition() - (COUNTS));
-        MotorFrontY.setTargetPosition(MotorFrontY.getCurrentPosition() + COUNTS);
-        MotorBackY.setTargetPosition(MotorBackY.getCurrentPosition() - COUNTS);
-
-        MotorFrontX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        MotorBackX.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        MotorFrontY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        MotorBackY.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    }
-
-
-    void armExtend(int counts, double power)
-    {
-        motorExtend.setPower(power);
-
-        motorExtend.setTargetPosition(motorExtend.getCurrentPosition()+counts);
-
-        motorExtend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        while(opModeIsActive() && motorExtend.isBusy())
+        if(servo.equalsIgnoreCase("grasp"))
         {
-            telemetry.addData("arm is extending to position", counts);
+            if (pos.equalsIgnoreCase("chomp"))
+                robot.block_drag_grasp.setPosition(1);
+
+            if (pos.equalsIgnoreCase("unchomp"))
+                robot.block_drag_grasp.setPosition(0);
+        }
+
+        if(servo.equalsIgnoreCase("rot"))
+        {
+            if (pos.equalsIgnoreCase("down"))
+                robot.block_drag.setPosition(1);
+
+            if (pos.equalsIgnoreCase("up"))
+                robot.block_drag.setPosition(0.65);
+
+            if(pos.equalsIgnoreCase("travel"))
+                robot.block_drag.setPosition(0.80);
         }
     }
 
-    void armRotate(int counts, double power)
+    void FoundRot()
     {
-        motorRotate.setPower(power);
 
-        motorRotate.setTargetPosition(motorRotate.getCurrentPosition()+counts);
-
-        motorRotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        while(opModeIsActive() && motorRotate.isBusy())
-        {
-            telemetry.addData("arm is rotating to position", counts);
-        }
-    }
-
-    void collectBlock()
-    {
-        moveY(-6, 0.3);
-        armRotate(600, 0.75);
-        moveY(7, 0.6);
     }
 }
